@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundCheck - AI Powered Music Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#6c5ce7',
+                            700: '#5b4bc4',
+                            800: '#4c3baf',
+                        },
+                        appBg: '#f6f5fa',
+                        darkNavy: '#161726',
+                        darkCard: '#1f2136',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f6f5fa;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1edfa;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Equalizer Animation */
+        @keyframes eqBar {
+            0%, 100% { height: 4px; }
+            50% { height: 20px; }
+        }
+        .animate-eq-1 { animation: eqBar 0.8s infinite ease-in-out 0.1s; }
+        .animate-eq-2 { animation: eqBar 0.7s infinite ease-in-out 0.3s; }
+        .animate-eq-3 { animation: eqBar 0.9s infinite ease-in-out 0.2s; }
+        .animate-eq-4 { animation: eqBar 0.6s infinite ease-in-out 0.4s; }
+        .animate-eq-5 { animation: eqBar 0.8s infinite ease-in-out 0.15s; }
+</style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 pb-28">
+
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 px-4 md:px-8 py-3.5">
+        <div class="max-w-[1440px] mx-auto flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" onclick="navigateTo('explore')" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-600/20 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-music text-lg"></i>
+                </div>
+                <span class="font-extrabold text-xl text-slate-900 tracking-tight">SoundCheck</span>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium" id="mainHeaderNav">
+                <button onclick="navigateTo('explore')" id="nav-explore" class="nav-link text-brand-600 font-semibold relative py-1 border-b-2 border-brand-600 transition-colors">Explore</button>
+                <button onclick="navigateTo('gemusic')" id="nav-gemusic" class="nav-link text-slate-500 hover:text-slate-900 py-1 border-b-2 border-transparent transition-colors">GeMusic</button>
+                <button onclick="navigateTo('lyric')" id="nav-lyric" class="nav-link text-slate-500 hover:text-slate-900 py-1 border-b-2 border-transparent transition-colors">Lyric</button>
+                <button onclick="navigateTo('history')" id="nav-history" class="nav-link text-slate-500 hover:text-slate-900 py-1 border-b-2 border-transparent transition-colors">History</button>
+                <button onclick="navigateTo('settings')" id="nav-settings" class="nav-link text-slate-500 hover:text-slate-900 py-1 border-b-2 border-transparent transition-colors">Settings</button>
+            </nav>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3">
+                <button onclick="openPlaylistModal()" class="bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs md:text-sm font-semibold px-5 py-2.5 rounded-2xl shadow-md shadow-brand-600/20 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Create Playlist</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section id="page-explore" class="page-view max-w-[1440px] w-full mx-auto px-4 md:px-8 pt-8 flex-1 flex flex-col gap-6">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Explore</h1>
+            <p class="text-slate-500 font-medium text-sm mt-0.5">Discover new music and vibes</p>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-8 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="exploreSearch" oninput="onExploreSearch()" onkeydown="if(event.key==='Enter')runSearch()" placeholder="Search songs, artists, albums..." class="w-full bg-white border border-slate-200/80 rounded-2xl pl-11 pr-4 py-3 text-xs md:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition-all shadow-2xs">
+            </div>
+            <div class="md:col-span-4 relative">
+                <select id="exploreGenre" onchange="runSearch()" class="w-full bg-white border border-slate-200/80 rounded-2xl px-4 py-3 text-xs md:text-sm font-medium text-slate-800 appearance-none focus:outline-none focus:border-brand-500 transition-all shadow-2xs cursor-pointer pr-10">
+                    <option>All Genres</option>
+                    <option>Pop / Indie</option>
+                    <option>Electronic / Synthwave</option>
+                    <option>Lo-Fi / Chill</option>
+                    <option>Acoustic</option>
+                </select>
+                <i class="fa-solid fa-chevron-down text-xs text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Featured Tracks List (Left Column) -->
+            <div class="lg:col-span-8 flex flex-col gap-3">
+                <div class="flex items-center justify-between px-1">
+                    <h2 id="featuredHeading" class="text-base font-bold text-slate-900">Featured Tracks</h2>
+                    <a href="#" onclick="resetExplore();return false;" class="text-xs font-semibold text-brand-600 hover:underline">View All</a>
+                </div>
+
+                <div class="flex flex-col gap-2.5" id="exploreTrackList">
+                </div>
+            </div>
+
+            <!-- Sidebar Widgets (Right Column) -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <!-- Hours Played Widget Card -->
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-2xs flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-900">Hours Played</h2>
+                        <select id="hoursSelect" onchange="updateHours()" class="bg-slate-100 border-none text-[11px] font-semibold text-slate-600 rounded-xl px-2.5 py-1 focus:outline-none cursor-pointer">
+                            <option>This Week</option>
+                            <option>Last Week</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="text-2xl font-extrabold text-slate-900"><span id="hoursValue">0.0</span> <span class="text-sm font-normal text-slate-500">hrs</span></div>
+                        <p id="hoursDelta" class="text-emerald-500 text-xs font-bold mt-0.5"><i id="hoursDeltaIcon" class="fa-solid fa-arrow-trend-up mr-1"></i><span id="hoursDeltaText">+0.00 hrs </span><span id="hoursDeltaLabel" class="font-normal text-slate-400">from last week</span></p>
+                    </div>
+
+                    <!-- SVG Purple Waveform Chart -->
+                    <div class="w-full h-28 relative mt-2">
+                        <svg class="w-full h-full" viewBox="0 0 300 100" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.5"/>
+                                    <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+                                </linearGradient>
+                            </defs>
+                            <path id="chartFill" d="M 0 80 Q 40 70 80 75 T 160 40 T 240 25 T 300 45 L 300 100 L 0 100 Z" fill="url(#purpleGradient)"/>
+                            <path id="chartLine" d="M 0 80 Q 40 70 80 75 T 160 40 T 240 25 T 300 45" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="flex justify-between text-[11px] font-semibold text-slate-400 px-1">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                </div>
+
+                <!-- Favourite Playlists Widget Card -->
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-2xs flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-900">Favourite Playlists</h2>
+                        <a href="#" id="plViewAll" onclick="togglePlaylistsExpanded();return false;" class="text-xs font-semibold text-brand-600 hover:underline">View All</a>
+                    </div>
+
+                    <div id="playlistList" class="flex flex-col gap-3"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <section id="page-gemusic" class="page-view hidden max-w-[1440px] w-full mx-auto px-4 md:px-8 pt-8 flex-1 flex flex-col gap-6">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 p-3 rounded-2xl bg-brand-100/80 flex items-center justify-center text-brand-600 shrink-0 border border-brand-200/50 shadow-2xs">
+                <i class="fa-solid fa-sparkles text-xl"></i>
+            </div>
+            <div class="flex flex-col">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">GeMusic</h1>
+                <p class="text-slate-500 font-medium text-xs md:text-sm mt-0.5">Turn your ideas into music with Gemini ✨</p>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-2xs flex flex-col gap-6">
+            
+            <!-- Mode Selector Tabs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button id="gmTab-text" onclick="setGmMode('text')" class="flex items-center justify-center gap-3 p-3.5 rounded-2xl bg-brand-50 border border-brand-200/80 text-brand-600 font-bold text-xs transition-all shadow-2xs">
+                    <i class="fa-solid fa-pen-nib text-sm"></i>
+                    <span>Describe (Text)</span>
+                </button>
+                <button id="gmTab-image" onclick="setGmMode('image')" class="flex items-center justify-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-600 hover:text-slate-900 font-bold text-xs transition-all">
+                    <i class="fa-regular fa-image text-sm"></i>
+                    <span>Image Prompt</span>
+                </button>
+                <button id="gmTab-video" onclick="setGmMode('video')" class="flex items-center justify-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-600 hover:text-slate-900 font-bold text-xs transition-all">
+                    <i class="fa-regular fa-circle-play text-sm"></i>
+                    <span>Video Link</span>
+                </button>
+            </div>
+
+            <!-- Image / Video attachment (shown for Image & Video modes) -->
+            <div id="gmAttach" class="hidden bg-slate-50/50 border border-slate-200/80 rounded-2xl p-4 flex flex-col gap-3">
+                <div id="gmImageBox" class="hidden flex items-center gap-3">
+                    <img id="gmImagePreview" class="hidden w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p id="gmImageName" class="text-xs font-semibold text-slate-700 truncate">No image selected</p>
+                        <p class="text-[11px] text-slate-400">JPG, PNG or WebP. Gemini reads the scene, colours and mood.</p>
+                    </div>
+                    <button type="button" onclick="document.getElementById('gmImageInput').click()" class="bg-brand-100/70 hover:bg-brand-200/70 text-brand-700 font-semibold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-plus text-xs"></i><span>Add Image</span>
+                    </button>
+                    <input type="file" id="gmImageInput" accept="image/*" class="hidden" onchange="onGmImage(this)">
+                </div>
+                <div id="gmVideoBox" class="hidden flex flex-col gap-3">
+                    <div class="relative">
+                        <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="gmVideoUrl" oninput="gmVideo=null;document.getElementById('gmVideoName').innerText='or add a short video file (up to 15 MB)'" placeholder="Paste a YouTube video link..." class="w-full bg-white border border-slate-200/80 rounded-2xl pl-9 pr-4 py-2.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="gmVideoName" class="flex-1 min-w-0 truncate text-[11px] text-slate-400">or add a short video file (up to 15 MB)</span>
+                        <button type="button" onclick="document.getElementById('gmVideoInput').click()" class="bg-brand-100/70 hover:bg-brand-200/70 text-brand-700 font-semibold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shrink-0">
+                            <i class="fa-solid fa-plus text-xs"></i><span>Add Video</span>
+                        </button>
+                        <input type="file" id="gmVideoInput" accept="video/*" class="hidden" onchange="onGmVideo(this)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompt Textarea Card -->
+            <div class="relative bg-slate-50/50 border border-slate-200/80 rounded-2xl p-4 flex flex-col gap-3">
+                <textarea 
+                    id="gemusicPrompt"
+                    rows="4" maxlength="500"
+                    placeholder="Describe the music you want to create... e.g. A relaxing lo-fi beat for studying at night with soft piano and rain sounds"
+                    class="w-full bg-transparent text-xs md:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none resize-none"
+                    oninput="document.getElementById('charCount').innerText = this.value.length + ' / 500'"
+                ></textarea>
+                
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <span id="charCount" class="text-[11px] font-semibold text-slate-400">0 / 500</span>
+                    <button type="button" onclick="insertSurprisePrompt()" class="bg-brand-100/70 hover:bg-brand-200/70 text-brand-700 font-semibold text-xs px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                        <span>Surprise Me</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parameters Grid Dropdowns -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-700">Genre</label>
+                    <select id="gmGenre" class="w-full bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs font-medium text-slate-800 appearance-none focus:outline-none focus:border-brand-500 transition-all shadow-2xs">
+                        <option>Lo-fi Hip Hop</option>
+                        <option>Ambient Synth</option>
+                        <option>Acoustic Folk</option>
+                        <option>Cinematic Orchestral</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-700">Mood</label>
+                    <select id="gmMood" class="w-full bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs font-medium text-slate-800 appearance-none focus:outline-none focus:border-brand-500 transition-all shadow-2xs">
+                        <option>Calm & Nostalgic</option>
+                        <option>Energetic</option>
+                        <option>Melancholic</option>
+                        <option>Upbeat & Happy</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-700">Tempo</label>
+                    <select id="gmTempo" class="w-full bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs font-medium text-slate-800 appearance-none focus:outline-none focus:border-brand-500 transition-all shadow-2xs">
+                        <option>90 BPM</option>
+                        <option>75 BPM</option>
+                        <option>120 BPM</option>
+                        <option>140 BPM</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-700">Key (Optional)</label>
+                    <select id="gmKey" class="w-full bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs font-medium text-slate-800 appearance-none focus:outline-none focus:border-brand-500 transition-all shadow-2xs">
+                        <option>C Major</option>
+                        <option>A Minor</option>
+                        <option>G Major</option>
+                        <option>E Minor</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Generate CTA Button -->
+            <button id="gmGenerateBtn" onclick="generateMusic()" class="w-full bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:opacity-95 active:scale-98 text-white font-bold text-sm py-4 rounded-2xl shadow-lg shadow-brand-600/25 transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-music"></i>
+                <span id="gmGenerateLabel">Generate Music</span>
+            </button>
+
+            <!-- Generated result -->
+            <div id="gmResult" class="hidden bg-slate-50 border border-slate-200/60 rounded-2xl p-3 flex items-center gap-3"></div>
+
+            <!-- Generation Tips -->
+            <div class="bg-brand-50/40 border border-brand-100 rounded-2xl p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2 text-brand-700 font-bold text-xs">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                    <span>Generation Tips</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div onclick="addTip('with acoustic guitar and soft piano')" class="p-3 bg-white border border-slate-100 rounded-xl text-xs cursor-pointer hover:border-brand-300 transition-all">
+                        <p class="font-bold text-slate-800">Add instruments</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">e.g. with acoustic guitar and piano</p>
+                    </div>
+                    <div onclick="addTip('emotional, uplifting vibe')" class="p-3 bg-white border border-slate-100 rounded-xl text-xs cursor-pointer hover:border-brand-300 transition-all">
+                        <p class="font-bold text-slate-800">Add emotions</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">e.g. sad, uplifting, nostalgic</p>
+                    </div>
+                    <div onclick="addTip('for late night study session')" class="p-3 bg-white border border-slate-100 rounded-xl text-xs cursor-pointer hover:border-brand-300 transition-all">
+                        <p class="font-bold text-slate-800">Add context</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">e.g. for studying, for workout</p>
+                    </div>
+                    <div onclick="addTip('night time rain ambience')" class="p-3 bg-white border border-slate-100 rounded-xl text-xs cursor-pointer hover:border-brand-300 transition-all">
+                        <p class="font-bold text-slate-800">Add details</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">e.g. night time, in the rain</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="page-lyric" class="page-view hidden max-w-[1440px] w-full mx-auto px-4 md:px-8 pt-8 flex-1 flex flex-col gap-6">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 p-3 rounded-2xl bg-brand-100/80 flex items-center justify-center text-brand-600 shrink-0 border border-brand-200/50 shadow-2xs">
+                <i class="fa-solid fa-microphone-lines text-xl"></i>
+            </div>
+            <div class="flex flex-col">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Lyrix</h1>
+                <p class="text-slate-500 font-medium text-xs md:text-sm mt-0.5">Extract lyrics from any music or video and get smart pitch insights with Gemini.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Column: Source & Settings -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <!-- Source Selection Card -->
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-2xs flex flex-col gap-4">
+                    <h2 class="text-sm font-bold text-slate-900">Add Your Source</h2>
+                    
+                    <div class="flex rounded-2xl bg-slate-100 p-1 text-xs font-semibold text-slate-600">
+                        <button id="lxTab-youtube" onclick="setLxMode('youtube')" class="flex-1 py-2 rounded-xl bg-white text-brand-600 shadow-xs">YouTube Link</button>
+                        <button id="lxTab-upload" onclick="setLxMode('upload')" class="flex-1 py-2 rounded-xl hover:text-slate-900">Upload Audio</button>
+                    </div>
+
+                    <div id="lxUrlRow" class="relative">
+                        <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="lxUrl" oninput="onLxUrlInput()" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full bg-white border border-slate-200/80 rounded-2xl pl-9 pr-8 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-brand-500">
+                        <i onclick="clearLxUrl()" class="fa-solid fa-xmark absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs cursor-pointer"></i>
+                    </div>
+                    <div id="lxUploadRow" class="hidden">
+                        <button type="button" onclick="document.getElementById('lxFileInput').click()" class="w-full bg-white border border-dashed border-slate-300 hover:border-brand-500 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-slate-600 flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-cloud-arrow-up text-brand-600"></i><span id="lxFileLabel" class="truncate">Choose audio or video file</span>
+                        </button>
+                        <input type="file" id="lxFileInput" accept="audio/*,video/*" class="hidden" onchange="onLxFile(this)">
+                    </div>
+
+                    <!-- Song Preview Card -->
+                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-3 flex items-center gap-3">
+                        <img id="lxCover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=150&q=80" class="w-16 h-16 rounded-xl object-cover shadow-2xs">
+                        <div>
+                            <h3 id="lxTitle" class="font-bold text-slate-900 text-xs">Happier</h3>
+                            <p id="lxArtist" class="text-slate-500 text-[11px]">Ed Sheeran</p>
+                            <span id="lxDuration" class="text-[10px] text-slate-400 mt-1 inline-block">Duration: 03:27</span>
+                        </div>
+                    </div>
+
+                    <button id="lxExtractBtn" onclick="extractLyrics()" class="bg-gradient-to-r from-brand-600 to-purple-600 text-white font-bold text-xs py-3 rounded-2xl shadow-md shadow-brand-600/20 hover:opacity-95 active:scale-98 transition-all">
+                        Extract Lyrics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Middle Column: Extracted Lyrics -->
+            <div class="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-2xs flex flex-col gap-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-sm font-bold text-slate-900">Extracted Lyrics</h2>
+                        <span class="bg-brand-50 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-brand-100">Powered by Gemini ✨</span>
+                    </div>
+                    <button onclick="downloadLyricsPDF()" class="border border-slate-200/80 hover:bg-slate-50 text-slate-600 font-semibold text-[11px] px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                        <i class="fa-solid fa-download text-xs"></i>
+                        <span>PDF</span>
+                    </button>
+                </div>
+
+                <!-- Lyrics Feed with Pitch Badges -->
+                <div id="lyricFeed" class="flex flex-col gap-4 text-xs font-medium max-h-[420px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <!-- Right Column: Pitch Analysis Grid -->
+            <div class="lg:col-span-3 flex flex-col gap-6">
+                <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-2xs flex flex-col gap-4">
+                    <h2 class="text-sm font-bold text-slate-900">Pitch & Lyric Analysis</h2>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50 p-3 rounded-2xl text-center">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Key Detected</span>
+                            <span id="lxKeyV" class="text-xs font-extrabold text-slate-900">G Major</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl text-center">
+                            <span class="text-[10px] text-slate-400 block font-semibold">BPM</span>
+                            <span id="lxBpmV" class="text-xs font-extrabold text-slate-900">96</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl text-center">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Vocal Range</span>
+                            <span id="lxRangeV" class="text-xs font-extrabold text-slate-900">G3 - E5</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl text-center">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Total Lines</span>
+                            <span id="lxLinesV" class="text-xs font-extrabold text-slate-900">42</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Pitch corrections -->
+                <div id="lxInsights" class="hidden bg-white border border-slate-200/80 rounded-3xl p-6 shadow-2xs flex flex-col gap-4">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-sm font-bold text-slate-900">Pitch Corrections</h2>
+                        <span id="lxAccuracy" class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 shrink-0">—</span>
+                    </div>
+                    <p id="lxSummary" class="text-[11px] leading-relaxed text-slate-500 font-medium"></p>
+                    <div id="lxCorrections" class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="page-history" class="page-view hidden max-w-[1440px] w-full mx-auto px-4 md:px-8 pt-8 flex-1 flex flex-col gap-6">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 p-3 rounded-2xl bg-brand-100/80 flex items-center justify-center text-brand-600 shrink-0 border border-brand-200/50 shadow-2xs">
+                <i class="fa-solid fa-rotate-left text-xl"></i>
+            </div>
+            <div class="flex flex-col">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">History</h1>
+                <p class="text-slate-500 font-medium text-xs md:text-sm mt-0.5">All your generated music and extractions in one place.</p>
+            </div>
+        </div>
+
+        <!-- Filter Pills & Search Bar -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <button id="hf-all" onclick="setHistFilter('all')" class="bg-brand-600 text-white text-xs font-semibold px-4 py-2 rounded-2xl shadow-xs">All</button>
+                <button id="hf-gemusic" onclick="setHistFilter('gemusic')" class="bg-white border border-slate-200/80 text-slate-600 hover:text-slate-900 text-xs font-semibold px-4 py-2 rounded-2xl">GeMusic (Generated)</button>
+                <button id="hf-lyric" onclick="setHistFilter('lyric')" class="bg-white border border-slate-200/80 text-slate-600 hover:text-slate-900 text-xs font-semibold px-4 py-2 rounded-2xl">Lyric (Extracted)</button>
+            </div>
+
+            <div class="relative w-full md:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="histSearch" oninput="renderHistory()" placeholder="Search your history..." class="w-full bg-white border border-slate-200/80 rounded-2xl pl-9 pr-4 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none">
+            </div>
+        </div>
+
+        <!-- Data Table Card -->
+        <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-2xs">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50/80 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="py-4 px-6">Track / Project</th>
+                            <th class="py-4 px-4">Type</th>
+                            <th class="py-4 px-4">Source / Prompt</th>
+                            <th class="py-4 px-4">Created On</th>
+                            <th class="py-4 px-4">Duration</th>
+                            <th class="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="histBody" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="page-settings" class="page-view hidden max-w-[1440px] w-full mx-auto px-4 md:px-8 pt-8 flex-1 flex flex-col gap-6">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 p-3 rounded-2xl bg-brand-100/80 flex items-center justify-center text-brand-600 shrink-0 border border-brand-200/50 shadow-2xs">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </div>
+            <div class="flex flex-col">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Settings</h1>
+                <p class="text-slate-500 font-medium text-xs md:text-sm mt-0.5">Manage your account and preferences.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-3xl p-5 shadow-2xs flex flex-col gap-5">
+                <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" class="w-11 h-11 rounded-full object-cover shrink-0">
+                    <div class="min-w-0">
+                        <h3 id="sbName" class="font-bold text-slate-900 text-xs truncate">Arjun Sharma</h3>
+                        <p id="sbEmail" class="text-slate-400 text-[11px] truncate">arjun.sharma@example.com</p>
+                    </div>
+                </div>
+
+                <nav class="flex flex-col gap-1 text-xs font-semibold">
+                    <button id="set-tab-profile" onclick="selectSettingsTab('profile')" class="w-full text-left px-3.5 py-2.5 rounded-2xl bg-brand-100/70 text-brand-600">Profile</button>
+                    <button id="set-tab-prefs" onclick="selectSettingsTab('prefs')" class="w-full text-left px-3.5 py-2.5 rounded-2xl text-slate-600 hover:bg-slate-50">Preferences</button>
+                    <button id="set-tab-api" onclick="selectSettingsTab('api')" class="w-full text-left px-3.5 py-2.5 rounded-2xl text-slate-600 hover:bg-slate-50">Gemini API</button>
+                </nav>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <button onclick="signOut()" class="w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-right-from-bracket"></i><span>Sign Out</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile & Settings Form Card -->
+            <div id="set-panel-profile" class="lg:col-span-9 bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-2xs flex flex-col gap-6">
+                <h2 class="text-base font-bold text-slate-900">Profile Information</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-slate-600 font-semibold">Username</label>
+                        <input type="text" id="setName" value="Arjun Sharma" class="bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-slate-600 font-semibold">Email</label>
+                        <input type="email" id="setEmail" value="arjun.sharma@example.com" class="bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-slate-600 font-semibold">Phone Number</label>
+                        <input type="tel" id="setPhone" placeholder="+91 98765 43210" class="bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex justify-end">
+                    <button onclick="saveProfile()" class="bg-brand-600 text-white font-bold text-xs px-6 py-2.5 rounded-2xl shadow-xs">Save Changes</button>
+                </div>
+            </div>
+
+            <div id="set-panel-prefs" class="hidden lg:col-span-9 bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-2xs flex flex-col gap-6">
+                <h2 class="text-base font-bold text-slate-900">Preferences</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium">
+                    <label class="flex items-center justify-between gap-3 bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500 cursor-pointer">
+                        <span class="text-slate-700 font-semibold">Autoplay next track</span>
+                        <input type="checkbox" id="prefAutoplay" checked class="w-4 h-4 accent-brand-600">
+                    </label>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-slate-600 font-semibold">Generated track length</label>
+                        <select id="prefSeconds" class="bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+                            <option value="30">30 seconds</option>
+                            <option value="45">45 seconds</option>
+                            <option value="60">60 seconds</option>
+                            <option value="90">90 seconds</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end">
+                    <button onclick="savePrefs()" class="bg-brand-600 text-white font-bold text-xs px-6 py-2.5 rounded-2xl shadow-xs">Save Changes</button>
+                </div>
+            </div>
+
+            <div id="set-panel-api" class="hidden lg:col-span-9 bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-2xs flex flex-col gap-6">
+                <h2 class="text-base font-bold text-slate-900">Gemini API</h2>
+                <div class="flex flex-col gap-1 text-xs font-medium">
+                    <label class="text-slate-600 font-semibold">Gemini API Key</label>
+                    <div class="relative">
+                        <input type="password" id="setKey" autocomplete="off" spellcheck="false" placeholder="Paste your Gemini API key (AIza…)" class="w-full pr-10 bg-white border border-slate-200/80 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+                        <button type="button" onclick="toggleKeyVisibility()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"><i id="keyEye" class="fa-solid fa-eye"></i></button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="text-brand-600 font-semibold hover:underline">aistudio.google.com/apikey</a>. It is stored only in this browser and sent straight to Google.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                    <button onclick="testApiKey()" class="border border-slate-200/80 hover:bg-slate-50 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-2xl">Test Key</button>
+                    <button onclick="saveApiKey()" class="bg-brand-600 text-white font-bold text-xs px-6 py-2.5 rounded-2xl shadow-xs">Save Key</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="fixed bottom-0 left-0 right-0 bg-darkNavy text-white z-50 px-4 md:px-8 py-3.5 shadow-2xl border-t border-slate-800">
+        <div class="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+            
+            <!-- Track Info -->
+            <div class="flex items-center gap-3.5 min-w-0 w-1/4">
+                <img id="playerCover" onclick="toggleNowPlaying()" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80" class="w-12 h-12 rounded-xl object-cover shrink-0 shadow-lg cursor-pointer hover:scale-110 transition-transform">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h3 id="playerTitle" class="font-bold text-white text-xs md:text-sm truncate">Sunset Drive</h3>
+                        <i id="playerHeart" onclick="toggleLike()" class="fa-regular fa-heart text-slate-400 text-xs cursor-pointer"></i>
+                    </div>
+                    <p id="playerArtist" class="text-slate-400 text-[11px] truncate">Ocean Bloom</p>
+                    <div class="hidden sm:flex items-center gap-1.5 mt-1">
+                        <span id="plGenre" class="bg-slate-800 text-slate-300 text-[9px] font-semibold px-2 py-0.5 rounded truncate max-w-[110px]">Indie Pop</span>
+                        <span id="plYear" class="bg-slate-800 text-slate-300 text-[9px] font-semibold px-2 py-0.5 rounded">2023</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls & Progress Bar -->
+            <div class="flex flex-col items-center gap-1.5 flex-1 max-w-xl">
+                <div class="flex items-center gap-5 text-slate-300 text-xs md:text-sm">
+                    <i id="shuffleBtn" onclick="toggleShuffle()" class="fa-solid fa-shuffle hover:text-white cursor-pointer"></i>
+                    <i onclick="prevTrack()" class="fa-solid fa-backward-step hover:text-white cursor-pointer"></i>
+                    <button onclick="togglePlayPause()" id="playPauseBtn" class="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-brand-600/40">
+                        <i id="playPauseIcon" class="fa-solid fa-play text-xs pl-0.5"></i>
+                    </button>
+                    <i onclick="nextTrack(false)" class="fa-solid fa-forward-step hover:text-white cursor-pointer"></i>
+                    <i id="repeatBtn" onclick="toggleRepeat()" class="fa-solid fa-repeat hover:text-white cursor-pointer"></i>
+                </div>
+
+                <div class="w-full flex items-center gap-3 text-[10px] font-semibold text-slate-400">
+                    <span id="curTime" class="w-8 text-right">0:00</span>
+                    <div id="progBar" onclick="seekFromClick(event)" class="flex-1 h-1.5 bg-slate-800 rounded-full relative cursor-pointer group">
+                        <div id="progFill" style="width:0%" class="h-full bg-brand-500 rounded-full relative">
+                            <span class="w-3 h-3 bg-white rounded-full absolute -right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity shadow-xs"></span>
+                        </div>
+                    </div>
+                    <span id="playerDuration" class="w-8">—</span>
+                </div>
+            </div>
+
+            <!-- Volume & Extra Tools -->
+            <div class="hidden md:flex items-center justify-end gap-4 w-1/4 text-slate-400 text-xs">
+                <div class="flex items-center gap-2">
+                    <i id="volIcon" onclick="toggleMute()" class="fa-solid fa-volume-high cursor-pointer hover:text-white"></i>
+                    <div id="volBar" onclick="volFromClick(event)" class="w-20 h-1.5 bg-slate-800 rounded-full cursor-pointer">
+                        <div id="volFill" style="width:75%" class="h-full bg-slate-300 rounded-full"></div>
+                    </div>
+                </div>
+                <i id="likeBtn2" onclick="toggleLike()" class="fa-regular fa-heart hover:text-white cursor-pointer"></i>
+                <i onclick="navigateTo('explore')" title="Browse tracks" class="fa-solid fa-list hover:text-white cursor-pointer"></i>
+            </div>
+
+        </div>
+    </footer>
+
+    <audio id="audioEl" preload="none"></audio>
+
+    <!-- Now-playing enlarged cover (Spotify style) -->
+    <div id="npPopover" class="fixed bottom-24 left-4 md:left-8 w-72 max-w-[calc(100vw-2rem)] bg-darkCard text-white rounded-3xl p-4 shadow-2xl border border-slate-700 z-50 flex flex-col gap-3 transition-all duration-300 origin-bottom-left opacity-0 pointer-events-none scale-90 translate-y-4">
+        <img id="npCover" src="" class="w-full aspect-square rounded-2xl object-cover shadow-xl">
+        <div class="flex items-end justify-between gap-3">
+            <div class="min-w-0">
+                <h3 id="npTitle" class="font-extrabold text-base truncate">—</h3>
+                <p id="npArtist" class="text-slate-400 text-xs truncate">—</p>
+            </div>
+            <div id="npEq" class="flex items-end gap-0.5 h-5 shrink-0 opacity-30">
+                <span class="w-1 bg-brand-400 rounded-full animate-eq-1" style="height:4px;animation-play-state:paused"></span>
+                <span class="w-1 bg-brand-400 rounded-full animate-eq-2" style="height:4px;animation-play-state:paused"></span>
+                <span class="w-1 bg-brand-400 rounded-full animate-eq-3" style="height:4px;animation-play-state:paused"></span>
+                <span class="w-1 bg-brand-400 rounded-full animate-eq-4" style="height:4px;animation-play-state:paused"></span>
+                <span class="w-1 bg-brand-400 rounded-full animate-eq-5" style="height:4px;animation-play-state:paused"></span>
+            </div>
+        </div>
+        <button onclick="npPinned=false;showNowPlaying(false)" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-900/70 hover:bg-slate-900 text-slate-300 flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+
+    <!-- Track ⋮ menu -->
+    <div id="trackMenu" class="hidden fixed z-50 w-56 bg-white border border-slate-200 rounded-2xl shadow-2xl p-1.5"></div>
+
+    <!-- Create playlist modal -->
+    <div id="playlistModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closePlaylistModal()">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 text-base">Create Playlist</h3>
+                <button onclick="closePlaylistModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <input type="text" id="playlistName" maxlength="40" placeholder="Playlist name" onkeydown="if(event.key==='Enter')createPlaylist()" class="w-full bg-white border border-slate-200/80 rounded-2xl px-4 py-3 text-xs md:text-sm font-medium text-slate-800 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10">
+            <div class="flex justify-end gap-3">
+                <button onclick="closePlaylistModal()" class="border border-slate-200/80 hover:bg-slate-50 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-2xl">Cancel</button>
+                <button onclick="createPlaylist()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-6 py-2.5 rounded-2xl shadow-xs">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-24 right-6 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2.5 transition-all opacity-0 pointer-events-none translate-y-3 border border-slate-800">
+        <i class="fa-solid fa-circle-check text-brand-400 text-sm"></i>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+/* ==========================================================
+   SoundCheck – app logic
+   Storage keys (localStorage): sc_profile, sc_gemini_key, sc_prefs,
+   sc_history, sc_playlists, sc_listen
+   ========================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const K = { profile: 'sc_profile', key: 'sc_gemini_key', prefs: 'sc_prefs', history: 'sc_history', playlists: 'sc_playlists', listen: 'sc_listen' };
+const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { showToast('Browser storage is full or blocked'); return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) { } }
+};
+const fmtTime = s => { if (!isFinite(s) || s < 0) s = 0; const m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ':' + String(r).padStart(2, '0'); };
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function showToast(msg) {
+    const toast = $('toast');
+    $('toastMsg').innerText = msg;
+    toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+    toast.classList.add('opacity-100', 'translate-y-0');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+    }, 2800);
+}
+
+/* ---------- Navigation ---------- */
+const PAGES = ['explore', 'gemusic', 'lyric', 'history', 'settings'];
+function navigateTo(pageId) {
+    if (!PAGES.includes(pageId)) return;
+    document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+    $('page-' + pageId).classList.remove('hidden');
+    document.querySelectorAll('.nav-link').forEach(btn => {
+        btn.className = 'nav-link text-slate-500 hover:text-slate-900 py-1 border-b-2 border-transparent transition-colors';
+    });
+    const activeBtn = $('nav-' + pageId);
+    if (activeBtn) activeBtn.className = 'nav-link text-brand-600 font-semibold relative py-1 border-b-2 border-brand-600 transition-colors';
+    if (pageId === 'history') renderHistory();
+    if (pageId === 'explore') updateHours();
+    if (pageId === 'settings') loadSettings();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ==========================================================
+   MUSIC CATALOG (royalty-free SoundHelix tracks) + iTunes search
+   ========================================================== */
+const IMG = {
+    sunset: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
+    city: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819',
+    dreams: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23',
+    days: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30',
+    echoes: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4',
+    stay: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745'
+};
+const img = (k, w = 150) => `${IMG[k]}?auto=format&fit=crop&w=${w}&q=80`;
+const SH = n => `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${n}.mp3`;
+const CATALOG = [
+    { id: 't1', title: 'Sunset Drive', artist: 'Ocean Bloom', cover: img('sunset'), genre: 'Pop / Indie', year: '2023', src: SH(1) },
+    { id: 't2', title: 'Midnight City Lights', artist: 'Neon Skyline', cover: img('city'), genre: 'Electronic / Synthwave', year: '2023', src: SH(2) },
+    { id: 't3', title: 'Lost in Dreams', artist: 'Aurora Waves', cover: img('dreams'), genre: 'Lo-Fi / Chill', year: '2022', src: SH(3) },
+    { id: 't4', title: 'Better Days', artist: 'Luna Echo', cover: img('days'), genre: 'Pop / Indie', year: '2024', src: SH(4) },
+    { id: 't5', title: 'Echoes of You', artist: 'The Midnight', cover: img('echoes'), genre: 'Electronic / Synthwave', year: '2021', src: SH(5) },
+    { id: 't6', title: 'Let Me Stay', artist: 'Hollow Coves', cover: img('stay'), genre: 'Acoustic', year: '2023', src: SH(6) }
+];
+const byId = id => CATALOG.find(t => t.id === id);
+const slim = t => ({ id: t.id, title: t.title, artist: t.artist, cover: t.cover, src: t.src, genId: t.genId, dur: t.dur, genre: t.genre, year: t.year, preview: t.preview });
+const durCache = {};
+const trackDur = t => t.preview ? '0:30' : (t.dur || durCache[t.src] || '—');
+
+function itunesSearch(q) {
+    return new Promise(resolve => {
+        const cb = 'itcb' + Date.now() + Math.floor(Math.random() * 1000);
+        const s = document.createElement('script');
+        const done = list => { clearTimeout(timer); delete window[cb]; s.remove(); resolve(list); };
+        const timer = setTimeout(() => done([]), 8000);
+        window[cb] = d => {
+            const list = ((d && d.results) || []).filter(r => r.previewUrl && r.trackName).map(r => ({
+                id: 'it' + r.trackId, title: r.trackName, artist: r.artistName,
+                cover: (r.artworkUrl100 || '').replace('100x100', '300x300'),
+                src: r.previewUrl, genre: r.primaryGenreName || '', year: (r.releaseDate || '').slice(0, 4), preview: true
+            }));
+            done(list);
+        };
+        s.onerror = () => done([]);
+        s.src = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&entity=song&limit=12&callback=${cb}`;
+        document.head.appendChild(s);
+    });
+}
+
+/* ---------- Explore list ---------- */
+let view = { list: CATALOG.slice(), title: 'Featured Tracks', playlistId: null };
+const rowCls = active => (active ? 'bg-brand-50/60 border-brand-200/80 hover:bg-brand-100/50' : 'bg-white border-slate-200/80 hover:bg-slate-50') + ' track-row border rounded-2xl p-3 flex items-center justify-between gap-4 cursor-pointer transition-all';
+const icoCls = playing => `fa-solid ${playing ? 'fa-pause' : 'fa-play'} text-xs ${playing ? '' : 'pl-0.5'}`;
+
+function rowHTML(t, i) {
+    const active = cur && cur.id === t.id;
+    const playing = active && !audio.paused;
+    return `<div onclick="rowClick(${i})" data-tid="${esc(t.id)}" class="${rowCls(active)}">
+        <div class="flex items-center gap-3.5 min-w-0">
+            <img src="${esc(t.cover)}" class="w-12 h-12 rounded-xl object-cover shadow-2xs shrink-0">
+            <div class="min-w-0">
+                <h3 class="font-bold text-slate-900 text-sm truncate">${esc(t.title)}</h3>
+                <p class="text-slate-500 text-xs truncate">${esc(t.artist)}${t.preview ? ' · 30s preview' : ''}</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 shrink-0">
+            <span data-dur="${esc(t.id)}" class="text-xs font-semibold text-slate-400">${trackDur(t)}</span>
+            <button onclick="event.stopPropagation();rowClick(${i})" class="w-9 h-9 rounded-full bg-white shadow-xs text-slate-800 flex items-center justify-center hover:scale-105 transition-transform">
+                <i data-ico class="${icoCls(playing)}"></i>
+            </button>
+            <i onclick="event.stopPropagation();openTrackMenu(event,${i})" class="fa-solid fa-ellipsis-vertical text-slate-400 text-sm hover:text-slate-600 px-1"></i>
+        </div>
+    </div>`;
+}
+
+function renderTracks() {
+    $('featuredHeading').innerText = view.title;
+    const box = $('exploreTrackList');
+    if (!view.list.length) {
+        box.innerHTML = '<div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center text-xs font-medium text-slate-400">No tracks found. Try another search.</div>';
+        return;
+    }
+    box.innerHTML = view.list.map(rowHTML).join('');
+    hydrateDurations();
+}
+
+function refreshRows() {
+    document.querySelectorAll('#exploreTrackList .track-row').forEach(row => {
+        const active = cur && cur.id === row.dataset.tid;
+        row.className = rowCls(active);
+        const ico = row.querySelector('[data-ico]');
+        if (ico) ico.className = icoCls(active && !audio.paused);
+    });
+}
+
+function hydrateDurations() {
+    view.list.slice(0, 12).forEach(t => {
+        if (t.preview || t.dur || !t.src || durCache[t.src]) return;
+        const a = new Audio();
+        a.preload = 'metadata';
+        a.onloadedmetadata = () => {
+            if (isFinite(a.duration)) {
+                durCache[t.src] = fmtTime(a.duration);
+                document.querySelectorAll(`[data-dur="${CSS.escape(t.id)}"]`).forEach(el => el.innerText = durCache[t.src]);
+            }
+            a.src = '';
+        };
+        a.src = t.src;
+    });
+}
+
+function rowClick(i) {
+    const t = view.list[i];
+    if (!t) return;
+    if (cur && cur.id === t.id && audio.getAttribute('src')) { togglePlayPause(); return; }
+    playList(view.list, i, true);
+}
+
+/* ---------- Search / genre ---------- */
+let searchSeq = 0, searchTimer;
+function onExploreSearch() { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 350); }
+async function runSearch() {
+    clearTimeout(searchTimer);
+    const q = $('exploreSearch').value.trim();
+    const genre = $('exploreGenre').value;
+    const seq = ++searchSeq;
+    const ql = q.toLowerCase();
+    const local = CATALOG.filter(t => (genre === 'All Genres' || t.genre === genre) && (!ql || (t.title + ' ' + t.artist + ' ' + t.genre).toLowerCase().includes(ql)));
+    if (!q) {
+        view = { list: local, title: genre === 'All Genres' ? 'Featured Tracks' : genre, playlistId: null };
+        renderTracks();
+        return;
+    }
+    const title = `Results for “${q}”`;
+    view = { list: local, title, playlistId: null };
+    renderTracks();
+    if (genre !== 'All Genres') return;
+    const remote = await itunesSearch(q);
+    if (seq !== searchSeq) return;
+    view = { list: local.concat(remote), title, playlistId: null };
+    renderTracks();
+}
+function resetExplore() {
+    $('exploreSearch').value = '';
+    $('exploreGenre').value = 'All Genres';
+    searchSeq++;
+    view = { list: CATALOG.slice(), title: 'Featured Tracks', playlistId: null };
+    renderTracks();
+}
+
+/* ==========================================================
+   PLAYER
+   ========================================================== */
+const audio = $('audioEl');
+let queue = [], qi = -1, cur = CATALOG[0], shuffleOn = false, repeatMode = 'off', playToken = 0;
+let prefs = Object.assign({ autoplay: true, seconds: 45, volume: 0.75 }, store.get(K.prefs, {}));
+
+async function playList(list, i, popup) {
+    queue = list.slice();
+    qi = i;
+    await startTrack(queue[qi], popup);
+}
+
+async function startTrack(t, popup) {
+    const token = ++playToken;
+    cur = t;
+    updatePlayerUI();
+    refreshRows();
+    if (popup) showNowPlaying(true, true);
+    try {
+        let src = t.src;
+        if (!src && t.genId) {
+            src = await getGenUrl(t.genId);
+            if (token !== playToken) return;
+        }
+        if (!src) throw new Error('No audio source');
+        audio.src = src;
+        await audio.play();
+    } catch (e) {
+        if (token !== playToken || (e && e.name === 'AbortError')) return;
+        showToast(e && e.name === 'NotAllowedError' ? 'Press play to start the track' : 'Could not play this track');
+        setPlayingUI(false);
+    }
+}
+
+async function togglePlayPause() {
+    if (!cur) { playList(CATALOG, 0, false); return; }
+    if (!audio.getAttribute('src')) {
+        if (!queue.length) { queue = view.list.some(t => t.id === cur.id) ? view.list.slice() : [cur]; qi = Math.max(0, queue.findIndex(t => t.id === cur.id)); }
+        startTrack(cur, false);
+        return;
+    }
+    if (audio.paused) { try { await audio.play(); } catch (e) { showToast('Could not start playback'); } }
+    else audio.pause();
+}
+
+function nextTrack(auto) {
+    if (!queue.length) return;
+    if (auto && repeatMode === 'one') { audio.currentTime = 0; audio.play().catch(() => { }); return; }
+    let n;
+    if (shuffleOn && queue.length > 1) { do { n = Math.floor(Math.random() * queue.length); } while (n === qi); }
+    else {
+        n = qi + 1;
+        if (n >= queue.length) {
+            if (repeatMode === 'all' || !auto) n = 0;
+            else { audio.pause(); audio.currentTime = 0; return; }
+        }
+    }
+    qi = n;
+    startTrack(queue[qi], false);
+}
+function prevTrack() {
+    if (!queue.length) return;
+    if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+    qi = (qi - 1 + queue.length) % queue.length;
+    startTrack(queue[qi], false);
+}
+function onEnded() {
+    if (repeatMode !== 'one' && !prefs.autoplay) return;
+    nextTrack(true);
+}
+function toggleShuffle() {
+    shuffleOn = !shuffleOn;
+    $('shuffleBtn').className = 'fa-solid fa-shuffle cursor-pointer ' + (shuffleOn ? 'text-brand-400' : 'hover:text-white');
+    showToast('Shuffle ' + (shuffleOn ? 'on' : 'off'));
+}
+function toggleRepeat() {
+    repeatMode = repeatMode === 'off' ? 'all' : repeatMode === 'all' ? 'one' : 'off';
+    $('repeatBtn').className = 'fa-solid fa-repeat cursor-pointer ' + (repeatMode === 'off' ? 'hover:text-white' : 'text-brand-400');
+    showToast(repeatMode === 'off' ? 'Repeat off' : repeatMode === 'all' ? 'Repeat all' : 'Repeat this track');
+}
+
+function setPlayingUI(p) {
+    $('playPauseIcon').className = p ? 'fa-solid fa-pause text-xs' : 'fa-solid fa-play text-xs pl-0.5';
+    $('npEq').classList.toggle('opacity-30', !p);
+    $('npEq').querySelectorAll('span').forEach(b => b.style.animationPlayState = p ? 'running' : 'paused');
+    refreshRows();
+}
+const bigCover = u => String(u || '').replace(/w=\d+/, 'w=640').replace('300x300', '600x600');
+function updatePlayerUI() {
+    if (!cur) return;
+    $('playerTitle').innerText = cur.title;
+    $('playerArtist').innerText = cur.artist;
+    $('playerCover').src = cur.cover;
+    $('playerDuration').innerText = trackDur(cur);
+    $('curTime').innerText = '0:00';
+    $('progFill').style.width = '0%';
+    $('plGenre').innerText = cur.genre || 'Music';
+    $('plYear').innerText = cur.year || '';
+    $('plYear').classList.toggle('hidden', !cur.year);
+    $('npCover').src = bigCover(cur.cover);
+    $('npTitle').innerText = cur.title;
+    $('npArtist').innerText = cur.artist;
+    updateLikeUI();
+}
+audio.addEventListener('play', () => setPlayingUI(true));
+audio.addEventListener('pause', () => setPlayingUI(false));
+audio.addEventListener('ended', onEnded);
+audio.addEventListener('timeupdate', () => {
+    if (!isFinite(audio.duration) || !audio.duration) return;
+    $('curTime').innerText = fmtTime(audio.currentTime);
+    $('progFill').style.width = (audio.currentTime / audio.duration * 100) + '%';
+});
+audio.addEventListener('loadedmetadata', () => {
+    if (!isFinite(audio.duration)) return;
+    $('playerDuration').innerText = fmtTime(audio.duration);
+    if (cur && cur.src && !cur.preview) durCache[cur.src] = fmtTime(audio.duration);
+});
+audio.addEventListener('error', () => { if (audio.getAttribute('src')) { showToast('Could not load this track'); setPlayingUI(false); } });
+
+function seekFromClick(e) {
+    if (!isFinite(audio.duration) || !audio.duration) return;
+    const r = $('progBar').getBoundingClientRect();
+    audio.currentTime = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * audio.duration;
+}
+let lastVol = 0.75;
+function setVolume(v) {
+    v = Math.min(1, Math.max(0, v));
+    audio.volume = v;
+    $('volFill').style.width = (v * 100) + '%';
+    $('volIcon').className = 'fa-solid ' + (v === 0 ? 'fa-volume-xmark' : v < 0.5 ? 'fa-volume-low' : 'fa-volume-high') + ' cursor-pointer hover:text-white';
+    prefs.volume = v;
+    store.set(K.prefs, prefs);
+}
+function volFromClick(e) { const r = $('volBar').getBoundingClientRect(); setVolume((e.clientX - r.left) / r.width); }
+function toggleMute() { if (audio.volume > 0) { lastVol = audio.volume; setVolume(0); } else setVolume(lastVol || 0.75); }
+
+/* ---------- Spotify-style enlarged cover ---------- */
+let npTimer, npPinned = false, npOpen = false;
+function showNowPlaying(open, auto) {
+    const p = $('npPopover');
+    npOpen = open;
+    p.classList.toggle('opacity-0', !open);
+    p.classList.toggle('pointer-events-none', !open);
+    p.classList.toggle('scale-90', !open);
+    p.classList.toggle('translate-y-4', !open);
+    p.classList.toggle('opacity-100', open);
+    p.classList.toggle('scale-100', open);
+    p.classList.toggle('translate-y-0', open);
+    clearTimeout(npTimer);
+    if (open && auto && !npPinned) npTimer = setTimeout(() => showNowPlaying(false), 5000);
+}
+function toggleNowPlaying() { if (npOpen) { npPinned = false; showNowPlaying(false); } else { npPinned = true; showNowPlaying(true); } }
+document.addEventListener('click', e => {
+    if (npOpen && !e.target.closest('#npPopover') && !e.target.closest('#playerCover') && !e.target.closest('.track-row') && !e.target.closest('[data-hist-play]')) { npPinned = false; showNowPlaying(false); }
+    if (!e.target.closest('#trackMenu')) closeTrackMenu();
+});
+
+/* ---------- Likes (stored in a "Liked Songs" playlist) ---------- */
+const isLiked = t => { const p = playlists.find(p => p.id === 'liked'); return !!(p && t && p.tracks.some(x => x.id === t.id)); };
+function updateLikeUI() {
+    const on = isLiked(cur);
+    $('playerHeart').className = (on ? 'fa-solid text-brand-500' : 'fa-regular text-slate-400') + ' fa-heart text-xs cursor-pointer';
+    $('likeBtn2').className = (on ? 'fa-solid text-brand-500' : 'fa-regular') + ' fa-heart hover:text-white cursor-pointer';
+}
+function toggleLike() {
+    if (!cur) return;
+    let p = playlists.find(p => p.id === 'liked');
+    if (!p) { p = { id: 'liked', name: 'Liked Songs', fav: true, cover: cur.cover, tracks: [] }; playlists.unshift(p); }
+    const i = p.tracks.findIndex(x => x.id === cur.id);
+    if (i >= 0) { p.tracks.splice(i, 1); showToast('Removed from Liked Songs'); }
+    else { p.tracks.push(slim(cur)); showToast('Added to Liked Songs'); }
+    if (p.tracks.length) p.cover = p.tracks[0].cover;
+    savePlaylists(); renderPlaylists(); updateLikeUI();
+}
+
+/* ==========================================================
+   PLAYLISTS
+   ========================================================== */
+const seedPlaylists = () => [
+    { id: 'p_chill', name: 'Chill Vibes', fav: true, cover: img('dreams', 100), tracks: ['t3', 't6', 't1'].map(id => slim(byId(id))) },
+    { id: 'p_focus', name: 'Focus Mode', fav: false, cover: img('echoes', 100), tracks: ['t5', 't3', 't2'].map(id => slim(byId(id))) },
+    { id: 'p_work', name: 'Workout Mix', fav: false, cover: img('days', 100), tracks: ['t4', 't2', 't5', 't1'].map(id => slim(byId(id))) },
+    { id: 'p_rain', name: 'Rainy Days', fav: false, cover: img('city', 100), tracks: ['t3', 't6', 't4'].map(id => slim(byId(id))) }
+];
+let playlists = store.get(K.playlists, null) || seedPlaylists();
+const savePlaylists = () => store.set(K.playlists, playlists);
+let plExpanded = false;
+
+function renderPlaylists() {
+    const box = $('playlistList');
+    box.className = 'flex flex-col gap-3 overflow-y-auto pr-1 ' + (plExpanded ? 'max-h-96' : 'max-h-[196px]');
+    $('plViewAll').innerText = plExpanded ? 'Show Less' : 'View All';
+    box.innerHTML = playlists.map(p => {
+        const n = p.tracks.length;
+        return `<div onclick="openPlaylist('${p.id}')" class="flex items-center justify-between group cursor-pointer">
+            <div class="flex items-center gap-3 min-w-0">
+                <img src="${esc(p.cover || img('dreams', 100))}" class="w-10 h-10 rounded-xl object-cover shrink-0">
+                <div class="min-w-0">
+                    <h3 class="font-bold text-slate-900 text-xs truncate">${esc(p.name)}</h3>
+                    <p class="text-slate-400 text-[11px]">${n} song${n === 1 ? '' : 's'}</p>
+                </div>
+            </div>
+            <i onclick="event.stopPropagation();toggleFavPlaylist('${p.id}')" class="${p.fav ? 'fa-solid fa-heart text-brand-600 text-sm' : 'fa-regular fa-heart text-slate-300 text-sm group-hover:text-brand-600 transition-colors'}"></i>
+        </div>`;
+    }).join('');
+}
+function togglePlaylistsExpanded() { plExpanded = !plExpanded; renderPlaylists(); }
+function toggleFavPlaylist(id) {
+    const p = playlists.find(p => p.id === id);
+    if (!p) return;
+    p.fav = !p.fav;
+    savePlaylists(); renderPlaylists();
+    showToast(p.fav ? `“${p.name}” added to favourites` : `“${p.name}” removed from favourites`);
+}
+function openPlaylist(id) {
+    const p = playlists.find(p => p.id === id);
+    if (!p) return;
+    if (!p.tracks.length) { showToast('This playlist is empty — use ⋮ on a song to add tracks'); return; }
+    $('exploreSearch').value = '';
+    $('exploreGenre').value = 'All Genres';
+    searchSeq++;
+    view = { list: p.tracks.slice(), title: p.name, playlistId: id };
+    renderTracks();
+    playList(view.list, 0, true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* create-playlist modal */
+let pendingTrack = null;
+function openPlaylistModal(track) {
+    pendingTrack = track || null;
+    $('playlistName').value = '';
+    $('playlistModal').classList.remove('hidden');
+    setTimeout(() => $('playlistName').focus(), 50);
+}
+function closePlaylistModal() { $('playlistModal').classList.add('hidden'); pendingTrack = null; }
+function createPlaylist() {
+    const name = $('playlistName').value.trim();
+    if (!name) { showToast('Give your playlist a name'); return; }
+    if (playlists.some(p => p.name.toLowerCase() === name.toLowerCase())) { showToast('A playlist with that name already exists'); return; }
+    const p = { id: 'p_' + Date.now().toString(36), name: name.slice(0, 40), fav: false, cover: pendingTrack ? pendingTrack.cover : img('dreams', 100), tracks: pendingTrack ? [slim(pendingTrack)] : [] };
+    playlists.push(p);
+    savePlaylists(); renderPlaylists();
+    showToast(`Playlist “${p.name}” created`);
+    closePlaylistModal();
+}
+
+/* track ⋮ menu */
+let menuTrack = null;
+function openTrackMenu(e, i) {
+    const t = view.list[i];
+    if (!t) return;
+    menuTrack = t;
+    const m = $('trackMenu');
+    let h = '<p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Add to playlist</p>';
+    h += playlists.filter(p => p.id !== 'liked').map(p => `<button onclick="addToPlaylist('${p.id}')" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-2"><i class="fa-solid fa-list-ul text-slate-400 w-4"></i><span class="truncate">${esc(p.name)}</span></button>`).join('');
+    h += '<button onclick="newPlaylistFromMenu()" class="w-full text-left px-3 py-2 text-xs font-semibold text-brand-600 hover:bg-brand-50 rounded-xl flex items-center gap-2"><i class="fa-solid fa-plus w-4"></i><span>New playlist…</span></button>';
+    if (view.playlistId) h += '<button onclick="removeFromPlaylist()" class="w-full text-left px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-2 border-t border-slate-100 mt-1"><i class="fa-regular fa-trash-can w-4"></i><span>Remove from this playlist</span></button>';
+    m.innerHTML = h;
+    m.classList.remove('hidden');
+    const w = 224, hh = m.offsetHeight;
+    m.style.left = Math.max(8, Math.min(e.clientX - w + 24, window.innerWidth - w - 8)) + 'px';
+    m.style.top = Math.max(8, Math.min(e.clientY + 8, window.innerHeight - hh - 100)) + 'px';
+}
+function closeTrackMenu() { $('trackMenu').classList.add('hidden'); }
+function addToPlaylist(pid) {
+    const p = playlists.find(p => p.id === pid);
+    if (!p || !menuTrack) return;
+    if (p.tracks.some(x => x.id === menuTrack.id)) showToast('Already in this playlist');
+    else { p.tracks.push(slim(menuTrack)); if (p.tracks.length === 1) p.cover = menuTrack.cover; savePlaylists(); renderPlaylists(); showToast(`Added to “${p.name}”`); }
+    closeTrackMenu();
+}
+function newPlaylistFromMenu() { const t = menuTrack; closeTrackMenu(); openPlaylistModal(t); }
+function removeFromPlaylist() {
+    const p = playlists.find(p => p.id === view.playlistId);
+    if (!p || !menuTrack) return;
+    p.tracks = p.tracks.filter(x => x.id !== menuTrack.id);
+    savePlaylists(); renderPlaylists();
+    view.list = p.tracks.slice();
+    renderTracks();
+    closeTrackMenu();
+    showToast(`Removed from “${p.name}”`);
+}
+
+/* ==========================================================
+   HOURS PLAYED
+   ========================================================== */
+const dayKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+let listen = store.get(K.listen, {});
+let listenTick = 0;
+function weekKeys(offset) {
+    const now = new Date();
+    const dow = (now.getDay() + 6) % 7;
+    return Array.from({ length: 7 }, (_, i) => dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow - 7 * offset + i)));
+}
+function chartPath(vals) {
+    const max = Math.max(...vals, 0.0001);
+    const pts = vals.map((v, i) => [i * 50, 92 - (v / max) * 72]);
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2;
+        d += ` C ${cx} ${y0} ${cx} ${y1} ${x1} ${y1}`;
+    }
+    return d;
+}
+function updateHours() {
+    const off = $('hoursSelect').value === 'Last Week' ? 1 : 0;
+    const vals = weekKeys(off).map(k => (listen[k] || 0) / 3600);
+    const total = vals.reduce((a, b) => a + b, 0);
+    const prev = weekKeys(off + 1).reduce((a, k) => a + (listen[k] || 0) / 3600, 0);
+    const d = total - prev;
+    $('hoursValue').innerText = total < 1 ? total.toFixed(2) : total.toFixed(1);
+    $('hoursDelta').className = (d >= 0 ? 'text-emerald-500' : 'text-red-500') + ' text-xs font-bold mt-0.5';
+    $('hoursDeltaIcon').className = 'fa-solid ' + (d >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down') + ' mr-1';
+    $('hoursDeltaText').innerText = (d >= 0 ? '+' : '−') + Math.abs(d).toFixed(Math.abs(d) < 1 ? 2 : 1) + ' hrs ';
+    $('hoursDeltaLabel').innerText = off ? 'from the week before' : 'from last week';
+    const line = chartPath(vals);
+    $('chartLine').setAttribute('d', line);
+    $('chartFill').setAttribute('d', line + ' L 300 100 L 0 100 Z');
+}
+setInterval(() => {
+    if (cur && !audio.paused && !audio.ended && audio.readyState > 2) {
+        const k = dayKey(new Date());
+        listen[k] = (listen[k] || 0) + 1;
+        if (++listenTick % 5 === 0) { store.set(K.listen, listen); updateHours(); }
+    }
+}, 1000);
+window.addEventListener('pagehide', () => store.set(K.listen, listen));
+
+/* ==========================================================
+   GEMINI CLIENT
+   ========================================================== */
+const getKey = () => String(store.get(K.key, '') || '').trim();
+const GEMINI_FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-2.5-flash'];
+let modelCache = null;
+/* Ask Google which models this key can use and prefer the newest stable "flash" one,
+   so the app keeps working when old model names are retired. */
+async function getGeminiModels(key) {
+    if (modelCache) return modelCache;
+    let list = [];
+    try {
+        const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000&key=' + encodeURIComponent(key));
+        const d = await r.json();
+        list = (d.models || [])
+            .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+            .map(m => String(m.name).replace('models/', ''))
+            .map(n => ({ n, v: /^gemini-(\d+(?:\.\d+)?)-flash$/.exec(n) }))
+            .filter(x => x.v)
+            .sort((a, b) => parseFloat(b.v[1]) - parseFloat(a.v[1]))
+            .map(x => x.n);
+    } catch (e) { /* use fallbacks */ }
+    modelCache = list.slice(0, 3).concat(GEMINI_FALLBACK_MODELS.filter(m => !list.slice(0, 3).includes(m)));
+    return modelCache;
+}
+
+function gemError(status, msg) {
+    msg = String(msg || '');
+    if (/api key not valid|API_KEY_INVALID|invalid api key/i.test(msg)) return 'Your Gemini API key looks invalid. Check it in Settings → Gemini API.';
+    if (status === 403) return 'Gemini rejected the request (permission or region). Check your API key in Settings.';
+    if (status === 429) return 'Gemini rate limit reached. Wait a minute and try again.';
+    if (status === 400 && /too large|exceeds|size/i.test(msg)) return 'That file is too large for Gemini. Try a shorter clip.';
+    return msg || ('Gemini request failed (HTTP ' + status + ')');
+}
+
+async function callGemini(parts, system) {
+    const key = getKey();
+    if (!key) throw new Error('NO_KEY');
+    let lastErr = null;
+    const models = await getGeminiModels(key);
+    for (const model of models) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 180000);
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: ctrl.signal,
+                body: JSON.stringify({
+                    systemInstruction: { parts: [{ text: system }] },
+                    contents: [{ role: 'user', parts }],
+                    generationConfig: { temperature: 0.8, responseMimeType: 'application/json' }
+                })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                const err = new Error(gemError(res.status, data.error && data.error.message));
+                if ([404, 429, 500, 503].includes(res.status) || /no longer available|not found|deprecated/i.test(err.message)) { lastErr = err; continue; }   // try the next model
+                throw err;
+            }
+            if (data.promptFeedback && data.promptFeedback.blockReason) throw new Error('Gemini blocked this request (' + data.promptFeedback.blockReason + ').');
+            const text = ((((data.candidates || [])[0] || {}).content || {}).parts || []).map(p => p.text || '').join('');
+            if (!text.trim()) throw new Error('Gemini returned an empty response. Try again or change the input.');
+            return text;
+        } catch (e) {
+            if (e.name === 'AbortError') throw new Error('Gemini took too long to respond. Try a shorter clip.');
+            if (e instanceof TypeError) throw new Error('Network error – check your internet connection.');
+            throw e;
+        } finally { clearTimeout(timer); }
+    }
+    modelCache = null;   // re-discover models next time
+    throw lastErr || new Error('Gemini request failed');
+}
+
+function parseJsonLoose(t) {
+    t = String(t).trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+    try { return JSON.parse(t); } catch (e) {
+        const a = t.indexOf('{'), b = t.lastIndexOf('}');
+        if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e2) { /* fall through */ } }
+        throw new Error('Gemini returned an unreadable response. Please try again.');
+    }
+}
+function needKey() {
+    showToast('Add your Gemini API key in Settings first');
+    navigateTo('settings');
+    selectSettingsTab('api');
+}
+const readB64 = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(new Error('Could not read that file')); r.readAsDataURL(f); });
+function scaleImage(file, max, q) {
+    return new Promise((res, rej) => {
+        const url = URL.createObjectURL(file);
+        const im = new Image();
+        im.onload = () => {
+            const s = Math.min(1, max / Math.max(im.width, im.height));
+            const c = document.createElement('canvas');
+            c.width = Math.max(1, Math.round(im.width * s)); c.height = Math.max(1, Math.round(im.height * s));
+            c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            res(c.toDataURL('image/jpeg', q));
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read that image')); };
+        im.src = url;
+    });
+}
+const YT_RE = /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+const ytId = u => { const m = YT_RE.exec(String(u || '').trim()); return m ? m[1] : null; };
+const normYt = u => { const id = ytId(u); return id ? 'https://www.youtube.com/watch?v=' + id : null; };
+
+/* ==========================================================
+   GEMUSIC – Gemini composes, the browser synthesises the audio
+   ========================================================== */
+const GM_PLACEHOLDER = 'Describe the music you want to create... e.g. A relaxing lo-fi beat for studying at night with soft piano and rain sounds';
+const GM_TAB_ON = 'flex items-center justify-center gap-3 p-3.5 rounded-2xl bg-brand-50 border border-brand-200/80 text-brand-600 font-bold text-xs transition-all shadow-2xs';
+const GM_TAB_OFF = 'flex items-center justify-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-600 hover:text-slate-900 font-bold text-xs transition-all';
+let gmMode = 'text', gmImage = null, gmVideo = null, gmBusy = false;
+
+function setGmMode(m) {
+    gmMode = m;
+    ['text', 'image', 'video'].forEach(k => { $('gmTab-' + k).className = k === m ? GM_TAB_ON : GM_TAB_OFF; });
+    $('gmAttach').classList.toggle('hidden', m === 'text');
+    $('gmImageBox').classList.toggle('hidden', m !== 'image');
+    $('gmVideoBox').classList.toggle('hidden', m !== 'video');
+    $('gemusicPrompt').placeholder = m === 'text' ? GM_PLACEHOLDER : m === 'image' ? 'Optional: add words to steer the music from this image…' : 'Optional: add words to steer the music from this video…';
+}
+async function onGmImage(input) {
+    const f = input.files && input.files[0];
+    input.value = '';
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { showToast('Please choose an image file'); return; }
+    try {
+        const full = await scaleImage(f, 1024, 0.85);
+        const thumb = await scaleImage(f, 160, 0.7);
+        gmImage = { mime: 'image/jpeg', data: full.split(',')[1], name: f.name, thumb };
+        $('gmImagePreview').src = full;
+        $('gmImagePreview').classList.remove('hidden');
+        $('gmImageName').innerText = f.name;
+    } catch (e) { showToast(e.message); }
+}
+async function onGmVideo(input) {
+    const f = input.files && input.files[0];
+    input.value = '';
+    if (!f) return;
+    if (!/^video\//.test(f.type)) { showToast('Please choose a video file'); return; }
+    if (f.size > 15 * 1024 * 1024) { showToast('Video is over 15 MB — paste a YouTube link instead'); return; }
+    try {
+        gmVideo = { mime: f.type || 'video/mp4', data: await readB64(f), name: f.name };
+        $('gmVideoName').innerText = f.name;
+        $('gmVideoUrl').value = '';
+    } catch (e) { showToast(e.message); }
+}
+
+const GM_SYSTEM = `You are the composer inside a music app. Turn the user's input (words, an image, or a video) into ONE short original piece of music described as JSON that a browser synthesizer will play. Reply with ONLY a JSON object, no commentary.
+Schema:
+{
+ "title": "short evocative title",
+ "description": "one sentence describing the piece",
+ "bpm": integer 50-180,
+ "key": "e.g. A minor",
+ "sound": {"lead":"sine|triangle|square|sawtooth","pad":"sine|triangle|sawtooth","bass":"sine|triangle|square|sawtooth","drumStyle":"none|lofi|pop|edm|rock|soft","swing":0-0.3,"reverb":0-1},
+ "chords": [{"root":"A","quality":"maj|min|maj7|min7|dom7|sus2|sus4|dim","beats":4}],
+ "melody": [{"note":"E4","beats":1},{"rest":true,"beats":0.5}]
+}
+Rules: chords must total 16 to 32 beats (4-8 bars of 4/4) and loop cleanly. The melody must total exactly the same number of beats as the chords, use notes between C3 and C6 that fit the chords and key, durations in multiples of 0.25, and 14-48 events with a memorable, singable contour. Match the requested genre, mood, tempo and key unless the input clearly asks for something else.`;
+
+async function generateMusic() {
+    if (gmBusy) return;
+    if (!getKey()) { needKey(); return; }
+    const text = $('gemusicPrompt').value.trim();
+    const ytUrl = $('gmVideoUrl').value.trim();
+    if (gmMode === 'text' && !text) { showToast('Describe the music you want first'); return; }
+    if (gmMode === 'image' && !gmImage) { showToast('Add an image first'); return; }
+    if (gmMode === 'video' && !gmVideo && !ytUrl) { showToast('Paste a YouTube link or add a video file'); return; }
+    if (gmMode === 'video' && !gmVideo && !normYt(ytUrl)) { showToast('That does not look like a YouTube link'); return; }
+
+    const genre = $('gmGenre').value, mood = $('gmMood').value, tempo = parseInt($('gmTempo').value, 10) || 100, key = $('gmKey').value;
+    const parts = [{ text: `Compose a piece. Genre: ${genre}. Mood: ${mood}. Tempo: ${tempo} BPM. Key: ${key}.` + (text ? ` User description: ${text}` : '') + (gmMode === 'image' ? ' Use the attached image: its scene, colours and feeling should shape the music.' : '') + (gmMode === 'video' ? ' Use the attached video: its visuals, pace and atmosphere should shape the music.' : '') }];
+    let sourceLabel = text || 'Text prompt', cover = null;
+    if (gmMode === 'image') { parts.push({ inlineData: { mimeType: gmImage.mime, data: gmImage.data } }); sourceLabel = gmImage.name; cover = gmImage.thumb; }
+    if (gmMode === 'video') {
+        if (gmVideo) { parts.push({ inlineData: { mimeType: gmVideo.mime, data: gmVideo.data } }); sourceLabel = gmVideo.name; }
+        else { parts.push({ fileData: { fileUri: normYt(ytUrl) } }); sourceLabel = 'YouTube Video'; }
+    }
+
+    gmBusy = true;
+    const btn = $('gmGenerateBtn'), label = $('gmGenerateLabel'), ico = btn.querySelector('i');
+    btn.disabled = true; btn.classList.add('opacity-70', 'cursor-wait');
+    ico.className = 'fa-solid fa-spinner fa-spin';
+    label.innerText = 'Gemini is composing…';
+    try {
+        const raw = parseJsonLoose(await callGemini(parts, GM_SYSTEM));
+        const comp = normalizeComp(raw, { bpm: tempo, key });
+        label.innerText = 'Rendering audio…';
+        await new Promise(r => setTimeout(r, 30));
+        const seconds = prefs.seconds || 45;
+        const blob = await renderCompositionToWav(comp, seconds);
+        const id = 'g' + Date.now().toString(36);
+        genBlobs[id] = blob; genUrlCache[id] = URL.createObjectURL(blob);
+        const covers = ['sunset', 'city', 'dreams', 'days', 'echoes', 'stay'];
+        const item = {
+            id, type: 'gemusic', title: comp.title, subtitle: comp.description || (genre + ' · ' + mood),
+            source: sourceLabel, created: new Date().toISOString(), duration: fmtTime(seconds), seconds,
+            cover: cover || img(covers[Math.floor(Math.random() * covers.length)], 100), comp
+        };
+        hist.unshift(item);
+        if (!store.set(K.history, hist)) { /* toast shown by store */ }
+        showGmResult(item);
+        playList(histTracks(), 0, true);
+        showToast('Music generated — saved to History');
+    } catch (e) {
+        if (e.message === 'NO_KEY') needKey(); else showToast(e.message || 'Generation failed');
+    } finally {
+        gmBusy = false;
+        btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-wait');
+        ico.className = 'fa-solid fa-music';
+        label.innerText = 'Generate Music';
+    }
+}
+
+function showGmResult(item) {
+    const box = $('gmResult');
+    box.classList.remove('hidden');
+    box.innerHTML = `
+        <img src="${esc(item.cover)}" class="w-16 h-16 rounded-xl object-cover shadow-2xs shrink-0">
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2"><h3 class="font-bold text-slate-900 text-sm truncate">${esc(item.title)}</h3><span class="bg-brand-50 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-brand-100 shrink-0">New</span></div>
+            <p class="text-slate-500 text-[11px] truncate">${esc(item.subtitle)}</p>
+            <p class="text-slate-400 text-[10px] mt-0.5">${item.comp.bpm} BPM · ${esc(item.comp.key)} · ${item.duration}</p>
+        </div>
+        <button onclick="playGenerated('${item.id}')" class="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center hover:scale-105 transition-transform shrink-0"><i class="fa-solid fa-play text-xs pl-0.5"></i></button>
+        <button onclick="downloadGenTrack('${item.id}')" class="border border-slate-200/80 hover:bg-slate-50 text-slate-600 font-semibold text-[11px] px-3 py-2 rounded-xl flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-download text-xs"></i><span>Download</span></button>`;
+}
+function playGenerated(id) {
+    const list = histTracks();
+    const i = list.findIndex(t => t.id === id);
+    if (i >= 0) playList(list, i, true);
+}
+
+/* ---------- composition normaliser ---------- */
+const PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+function rootPc(s) {
+    const m = /^([A-Ga-g])([#b♯♭]?)/.exec(String(s || '').trim());
+    if (!m) return null;
+    let pc = PC[m[1].toUpperCase()];
+    if (m[2] === '#' || m[2] === '♯') pc++;
+    if (m[2] === 'b' || m[2] === '♭') pc--;
+    return (pc + 12) % 12;
+}
+function noteToMidi(n) {
+    const m = /^([A-Ga-g])([#b♯♭]?)(-?\d)$/.exec(String(n || '').trim());
+    if (!m) return null;
+    let pc = PC[m[1].toUpperCase()];
+    if (m[2] === '#' || m[2] === '♯') pc++;
+    if (m[2] === 'b' || m[2] === '♭') pc--;
+    return (parseInt(m[3], 10) + 1) * 12 + pc;
+}
+function normQuality(q) {
+    const s = String(q || 'maj').trim(), l = s.toLowerCase();
+    if (l === 'maj7' || l === 'major7' || s === 'M7') return 'maj7';
+    if (l === 'min7' || l === 'm7' || l === 'minor7') return 'min7';
+    if (l === 'dom7' || l === '7' || l === 'dominant7') return 'dom7';
+    if (l === 'min' || l === 'm' || l === 'minor' || l === '-') return 'min';
+    if (l === 'sus2') return 'sus2';
+    if (l === 'sus4' || l === 'sus') return 'sus4';
+    if (l === 'dim' || l === 'diminished' || l === 'o') return 'dim';
+    return 'maj';
+}
+const CHORDS = { maj: [0, 4, 7], min: [0, 3, 7], maj7: [0, 4, 7, 11], min7: [0, 3, 7, 10], dom7: [0, 4, 7, 10], sus2: [0, 2, 7], sus4: [0, 5, 7], dim: [0, 3, 6] };
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+function defaultChords(key) {
+    const root = rootPc(key) ?? 0, minor = /min/i.test(key);
+    const deg = minor ? [[0, 'min'], [8, 'maj'], [3, 'maj'], [10, 'maj']] : [[0, 'maj'], [7, 'maj'], [9, 'min'], [5, 'maj']];
+    return deg.map(([d, q]) => ({ pc: (root + d) % 12, q, beats: 4 }));
+}
+function normalizeComp(raw, def) {
+    const c = raw && typeof raw === 'object' ? raw : {};
+    const num = (v, a, b, d) => { v = Number(v); return isFinite(v) ? Math.min(b, Math.max(a, v)) : d; };
+    const pick = (v, list, d) => list.includes(v) ? v : d;
+    const W = ['sine', 'triangle', 'square', 'sawtooth'];
+    const s = c.sound || {};
+    const out = {
+        title: String(c.title || 'Untitled Track').slice(0, 60),
+        description: String(c.description || '').slice(0, 200),
+        bpm: Math.round(num(c.bpm, 50, 190, def.bpm || 100)),
+        key: String(c.key || def.key || 'C Major').slice(0, 20),
+        sound: {
+            lead: pick(s.lead, W, 'triangle'), pad: pick(s.pad, ['sine', 'triangle', 'sawtooth'], 'sine'), bass: pick(s.bass, W, 'sine'),
+            drumStyle: pick(s.drumStyle, ['none', 'lofi', 'pop', 'edm', 'rock', 'soft'], 'soft'),
+            swing: num(s.swing, 0, 0.35, 0), reverb: num(s.reverb, 0, 1, 0.4)
+        }
+    };
+    let chords = (Array.isArray(c.chords) ? c.chords : []).map(x => ({ pc: rootPc(x && x.root), q: normQuality(x && x.quality), beats: Math.round(num(x && x.beats, 1, 8, 4) * 4) / 4 })).filter(x => x.pc !== null);
+    if (!chords.length) chords = defaultChords(out.key);
+    let total = 0;
+    chords = chords.filter(ch => { if (total >= 32) return false; total += ch.beats; return true; });
+    out.chords = chords; out.length = total;
+    const mel = []; let t = 0;
+    for (const m of (Array.isArray(c.melody) ? c.melody : [])) {
+        if (!m || t >= total) break;
+        const b = Math.min(Math.max(0.25, Math.round(num(m.beats, 0.25, 8, 1) * 4) / 4), total - t);
+        const midi = m.rest ? null : noteToMidi(m.note);
+        if (midi !== null) mel.push({ t, midi: Math.min(84, Math.max(48, midi)), beats: b });
+        t += b;
+    }
+    if (!mel.length) {   // fallback: arpeggiate the chords
+        let acc = 0;
+        chords.forEach(ch => { CHORDS[ch.q].forEach((iv, i) => { if (i < ch.beats) mel.push({ t: acc + i, midi: 60 + ((ch.pc + iv) % 12), beats: 1 }); }); acc += ch.beats; });
+    }
+    out.melody = mel;
+    return out;
+}
+
+/* ---------- synthesiser (offline render → WAV) ---------- */
+const DRUMS = {
+    lofi: { k: [0, 10], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14], hv: 0.5 },
+    pop: { k: [0, 8, 10], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14], hv: 0.7 },
+    edm: { k: [0, 4, 8, 12], s: [4, 12], h: [2, 6, 10, 14], hv: 0.8 },
+    rock: { k: [0, 8, 10], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12, 14], hv: 0.8 },
+    soft: { k: [0, 8], s: [], h: [4, 12], hv: 0.4 },
+    none: { k: [], s: [], h: [], hv: 0 }
+};
+function makeImpulse(ctx, secs, decay) {
+    const len = Math.floor(ctx.sampleRate * secs), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    return buf;
+}
+function scheduleComposition(ctx, comp, seconds, dry, wetBus, noise) {
+    const beat = 60 / comp.bpm, L = comp.length, nBlocks = Math.ceil((seconds / beat) / L);
+    const drums = DRUMS[comp.sound.drumStyle] || DRUMS.soft;
+    const limit = seconds + 1;
+
+    const note = (type, freq, start, dur, peak, o = {}) => {
+        if (start >= limit) return;
+        const a = o.a ?? 0.01, r = o.r ?? 0.1, end = start + dur;
+        const osc = ctx.createOscillator(); osc.type = type; osc.frequency.value = freq;
+        if (o.detune) osc.detune.value = o.detune;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, start);
+        g.gain.linearRampToValueAtTime(peak, start + a);
+        g.gain.linearRampToValueAtTime(peak * 0.7, start + a + Math.min(0.2, dur * 0.5));
+        g.gain.setValueAtTime(peak * 0.7, end);
+        g.gain.linearRampToValueAtTime(0, end + r);
+        if (o.lp) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; osc.connect(f); f.connect(g); } else osc.connect(g);
+        g.connect(dry);
+        if (o.send !== false) g.connect(wetBus);
+        osc.start(start); osc.stop(end + r + 0.05);
+    };
+    const kick = (t, v) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+        g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+        o.connect(g); g.connect(dry); o.start(t); o.stop(t + 0.3);
+    };
+    const noiseHit = (t, v, type, freq, q, dec) => {
+        const n = ctx.createBufferSource(); n.buffer = noise;
+        const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+        const g = ctx.createGain(); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.001, t + dec);
+        n.connect(f); f.connect(g); g.connect(dry);
+        n.start(t, Math.random() * 0.5); n.stop(t + dec + 0.03);
+        return g;
+    };
+    const snare = (t, v) => {
+        noiseHit(t, v, 'bandpass', 1900, 0.8, 0.17).connect(wetBus);
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = 190;
+        g.gain.setValueAtTime(v * 0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+        o.connect(g); g.connect(dry); o.start(t); o.stop(t + 0.12);
+    };
+    const hat = (t, v, open) => noiseHit(t, v, 'highpass', 7500, 0.7, open ? 0.18 : 0.045);
+
+    for (let b = 0; b < nBlocks; b++) {
+        const bt = b * L * beat, blockEnd = bt + L * beat;
+        const intro = b === 0, breakdown = b % 4 === 2;
+        let ct = 0;
+        comp.chords.forEach(ch => {
+            const st = bt + ct * beat, du = ch.beats * beat;
+            ct += ch.beats;
+            if (st >= limit) return;
+            let root = 48 + ch.pc; if (root > 54) root -= 12;
+            CHORDS[ch.q].forEach((iv, i) => note(comp.sound.pad, mtof(root + iv + 12), st, du, 0.045, { a: 0.25, r: 0.4, lp: 1600, detune: i * 3 }));
+            if (!intro) {
+                const bm = 36 + ch.pc;
+                for (let k = 0; k < ch.beats; k += 2) {
+                    const m = Math.floor(k / 2) % 2 === 1 ? bm + 7 : bm;
+                    note(comp.sound.bass, mtof(m), st + k * beat, Math.min(2, ch.beats - k) * beat * 0.9, 0.2, { a: 0.02, r: 0.08, lp: 600, send: false });
+                }
+            }
+        });
+        if (!breakdown) {
+            comp.melody.forEach(n => {
+                const st = bt + n.t * beat;
+                if (st >= limit) return;
+                const m = n.midi + (b % 4 === 3 ? 12 : 0), du = n.beats * beat * 0.95;
+                note(comp.sound.lead, mtof(m), st, du, 0.11, { a: 0.015, r: 0.12, lp: 3800 });
+                note(comp.sound.lead, mtof(m), st, du, 0.05, { a: 0.015, r: 0.12, lp: 3800, detune: 7 });
+            });
+        }
+        if (!intro && (drums.k.length || drums.h.length)) {
+            const step = beat / 4, bars = Math.ceil(L / 4);
+            for (let bar = 0; bar < bars; bar++) {
+                for (let s = 0; s < 16; s++) {
+                    let t0 = bt + (bar * 16 + s) * step;
+                    if (s % 4 === 2) t0 += comp.sound.swing * (beat / 2);
+                    if (t0 >= blockEnd - 1e-6 || t0 >= limit) continue;
+                    if (drums.k.includes(s)) kick(t0, 0.8);
+                    if (drums.s.includes(s)) snare(t0, 0.35);
+                    if (drums.h.includes(s)) hat(t0, 0.12 * drums.hv * (s % 4 === 0 ? 1 : 0.7), comp.sound.drumStyle === 'edm');
+                }
+            }
+        }
+    }
+}
+
+function encodeWav(samples, sr) {
+    let peak = 0;
+    for (let i = 0; i < samples.length; i++) { const a = Math.abs(samples[i]); if (a > peak) peak = a; }
+    const gain = peak > 0 ? 0.9 / peak : 1;
+    const buf = new ArrayBuffer(44 + samples.length * 2), v = new DataView(buf);
+    const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    w(36, 'data'); v.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) { const s = Math.max(-1, Math.min(1, samples[i] * gain)); v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true); }
+    return new Blob([buf], { type: 'audio/wav' });
+}
+async function renderCompositionToWav(comp, seconds) {
+    const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Off) throw new Error('This browser cannot render audio. Try Chrome, Edge, Firefox or Safari.');
+    const sr = 44100, tail = 1.5;
+    const ctx = new Off(1, Math.ceil(sr * (seconds + tail)), sr);
+    const master = ctx.createGain(), comp_ = ctx.createDynamicsCompressor(), dry = ctx.createGain(), wetBus = ctx.createGain(), conv = ctx.createConvolver();
+    conv.buffer = makeImpulse(ctx, 1.8, 2.5);
+    wetBus.gain.value = 0.1 + 0.45 * comp.sound.reverb;
+    dry.connect(master); wetBus.connect(conv); conv.connect(master); master.connect(comp_); comp_.connect(ctx.destination);
+    master.gain.setValueAtTime(0, 0);
+    master.gain.linearRampToValueAtTime(0.8, 0.05);
+    master.gain.setValueAtTime(0.8, Math.max(0.06, seconds - 3));
+    master.gain.linearRampToValueAtTime(0, seconds + 0.5);
+    const noise = ctx.createBuffer(1, sr, sr), nd = noise.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    scheduleComposition(ctx, comp, seconds, dry, wetBus, noise);
+    const rendered = await ctx.startRendering();
+    return encodeWav(rendered.getChannelData(0), sr);
+}
+
+const genUrlCache = {}, genBlobs = {};
+async function getGenUrl(id) {
+    if (genUrlCache[id]) return genUrlCache[id];
+    const item = hist.find(x => x.id === id);
+    if (!item || !item.comp) throw new Error('Track data is missing');
+    showToast('Rendering your track…');
+    const blob = await renderCompositionToWav(item.comp, item.seconds || 45);
+    genBlobs[id] = blob;
+    genUrlCache[id] = URL.createObjectURL(blob);
+    return genUrlCache[id];
+}
+async function downloadGenTrack(id) {
+    const item = hist.find(x => x.id === id);
+    if (!item) return;
+    try {
+        const url = await getGenUrl(id);
+        const a = document.createElement('a');
+        a.href = url; a.download = (item.title.replace(/[^\w\- ]+/g, '').trim() || 'soundcheck-track') + '.wav';
+        document.body.appendChild(a); a.click(); a.remove();
+        showToast('Download started');
+    } catch (e) { showToast(e.message || 'Could not render the track'); }
+}
+function insertSurprisePrompt() {
+    const prompts = [
+        "A chill lo-fi synth beat with soft piano notes and ambient rain for studying.",
+        "Uplifting acoustic guitar melody with warm sunset beach vibes.",
+        "Futuristic synthwave soundtrack with driving electronic bassline.",
+        "Cinematic orchestral build-up with violins and deep brass tones."
+    ];
+    const random = prompts[Math.floor(Math.random() * prompts.length)];
+    $('gemusicPrompt').value = random;
+    $('charCount').innerText = random.length + ' / 500';
+    showToast('Surprise prompt loaded!');
+}
+function addTip(text) {
+    const area = $('gemusicPrompt');
+    area.value = (area.value ? area.value + ', ' : '') + text;
+    area.value = area.value.slice(0, 500);
+    $('charCount').innerText = area.value.length + ' / 500';
+    showToast('Tip added to prompt');
+}
+
+/* ==========================================================
+   HISTORY
+   ========================================================== */
+let hist = store.get(K.history, []);
+let histFilter = 'all';
+const HF_ON = 'bg-brand-600 text-white text-xs font-semibold px-4 py-2 rounded-2xl shadow-xs';
+const HF_OFF = 'bg-white border border-slate-200/80 text-slate-600 hover:text-slate-900 text-xs font-semibold px-4 py-2 rounded-2xl';
+const genTrack = it => ({ id: it.id, title: it.title, artist: 'GeMusic · AI generated', cover: it.cover, genId: it.id, dur: it.duration, genre: (it.comp && it.comp.key) || 'AI Music', year: String(new Date(it.created).getFullYear()) });
+const histTracks = () => hist.filter(h => h.type === 'gemusic').map(genTrack);
+
+function setHistFilter(f) {
+    histFilter = f;
+    ['all', 'gemusic', 'lyric'].forEach(k => { $('hf-' + k).className = k === f ? HF_ON : HF_OFF; });
+    renderHistory();
+}
+function renderHistory() {
+    const q = ($('histSearch').value || '').trim().toLowerCase();
+    const rows = hist.filter(h => (histFilter === 'all' || h.type === histFilter) && (!q || (h.title + ' ' + h.subtitle + ' ' + h.source).toLowerCase().includes(q)));
+    const body = $('histBody');
+    if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="6" class="py-12 px-6 text-center text-slate-400 font-medium">${hist.length ? 'Nothing matches your search.' : 'No history yet — generate music in GeMusic or extract lyrics in Lyrix and it will show up here.'}</td></tr>`;
+        return;
+    }
+    body.innerHTML = rows.map(h => {
+        const gen = h.type === 'gemusic';
+        const date = new Date(h.created).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return `<tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="py-3.5 px-6 flex items-center gap-3">
+                <img src="${esc(h.cover)}" ${gen ? 'data-hist-play' : ''} onclick="openHistory('${h.id}')" class="w-10 h-10 rounded-xl object-cover cursor-pointer">
+                <div class="min-w-0">
+                    <p class="font-bold text-slate-900 cursor-pointer" ${gen ? 'data-hist-play' : ''} onclick="openHistory('${h.id}')">${esc(h.title)}</p>
+                    <p class="text-slate-400 text-[11px] truncate max-w-[260px]">${esc(h.subtitle)}</p>
+                </div>
+            </td>
+            <td class="py-3.5 px-4"><span class="${gen ? 'bg-brand-50 text-brand-600' : 'bg-emerald-50 text-emerald-600'} text-[10px] font-bold px-2.5 py-1 rounded-lg">${gen ? 'GeMusic' : 'Lyric'}</span></td>
+            <td class="py-3.5 px-4 text-slate-500 truncate max-w-[200px]">${esc(h.source)}</td>
+            <td class="py-3.5 px-4 text-slate-500">${date}</td>
+            <td class="py-3.5 px-4 text-slate-500">${esc(h.duration || '—')}</td>
+            <td class="py-3.5 px-6 text-right"><i onclick="downloadHistory('${h.id}')" title="${gen ? 'Download WAV' : 'Download PDF'}" class="fa-solid fa-download text-slate-400 hover:text-slate-700 cursor-pointer text-sm"></i></td>
+        </tr>`;
+    }).join('');
+}
+function openHistory(id) {
+    const h = hist.find(x => x.id === id);
+    if (!h) return;
+    if (h.type === 'gemusic') { playGenerated(id); return; }
+    lxResult = h.result;
+    if (h.sourceUrl) $('lxUrl').value = h.sourceUrl;
+    renderLyrics(h.result);
+    $('lxTitle').innerText = h.result.title || h.title;
+    $('lxArtist').innerText = h.result.artist || '';
+    $('lxDuration').innerText = 'Duration: ' + (h.duration || '—');
+    if (h.cover) $('lxCover').src = h.cover;
+    navigateTo('lyric');
+}
+function downloadHistory(id) {
+    const h = hist.find(x => x.id === id);
+    if (!h) return;
+    if (h.type === 'gemusic') downloadGenTrack(id); else exportLyricsPdf(h.result);
+}
+
+/* ==========================================================
+   LYRIX – lyrics + pitch analysis with Gemini
+   ========================================================== */
+let lxMode = 'youtube', lxFile = null, lxResult = null, lxBusy = false, lxDurationText = '—';
+const LX_TAB_ON = 'flex-1 py-2 rounded-xl bg-white text-brand-600 shadow-xs';
+const LX_TAB_OFF = 'flex-1 py-2 rounded-xl hover:text-slate-900';
+const LX_FEED_EMPTY = '<div class="text-slate-400 text-[11px] leading-relaxed">Add a YouTube link or upload audio, then tap <span class="font-semibold text-slate-500">Extract Lyrics</span>. Gemini will transcribe the lyrics and mark right and wrong pitches.</div>';
+
+function setLxMode(m) {
+    lxMode = m;
+    $('lxTab-youtube').className = m === 'youtube' ? LX_TAB_ON : LX_TAB_OFF;
+    $('lxTab-upload').className = m === 'upload' ? LX_TAB_ON : LX_TAB_OFF;
+    $('lxUrlRow').classList.toggle('hidden', m !== 'youtube');
+    $('lxUploadRow').classList.toggle('hidden', m !== 'upload');
+    if (m === 'youtube') updateYtPreview();
+    else if (lxFile) { $('lxTitle').innerText = lxFile.name.replace(/\.[^.]+$/, ''); $('lxArtist').innerText = 'Uploaded file'; $('lxDuration').innerText = 'Duration: ' + lxDurationText; }
+    else { $('lxTitle').innerText = 'No file selected'; $('lxArtist').innerText = 'Choose an audio or video file'; $('lxDuration').innerText = 'Duration: —'; }
+}
+function clearLxUrl() { $('lxUrl').value = ''; updateYtPreview(); }
+let ytTimer;
+function onLxUrlInput() { clearTimeout(ytTimer); ytTimer = setTimeout(updateYtPreview, 400); }
+async function updateYtPreview() {
+    const raw = $('lxUrl').value.trim();
+    const id = ytId(raw);
+    $('lxDuration').innerText = 'Duration: —';
+    if (!raw) { $('lxTitle').innerText = 'No link yet'; $('lxArtist').innerText = 'Paste a YouTube link above'; return; }
+    if (!id) { $('lxTitle').innerText = 'Not a YouTube link'; $('lxArtist').innerText = 'Use a youtube.com or youtu.be link'; return; }
+    $('lxCover').src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+    $('lxTitle').innerText = 'YouTube video'; $('lxArtist').innerText = 'Loading details…';
+    try {
+        const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id));
+        const d = await r.json();
+        if (ytId($('lxUrl').value) !== id) return;
+        $('lxTitle').innerText = d.title || 'YouTube video';
+        $('lxArtist').innerText = d.author_name || 'YouTube';
+    } catch (e) { $('lxTitle').innerText = 'YouTube video'; $('lxArtist').innerText = 'youtube.com'; }
+}
+function onLxFile(input) {
+    const f = input.files && input.files[0];
+    input.value = '';
+    if (!f) return;
+    if (!/^(audio|video)\//.test(f.type) && !/\.(mp3|wav|m4a|aac|ogg|flac|mp4|webm|mov)$/i.test(f.name)) { showToast('Please choose an audio or video file'); return; }
+    if (f.size > 14 * 1024 * 1024) { showToast('File is over 14 MB — use a YouTube link or a shorter clip'); return; }
+    lxFile = f;
+    $('lxFileLabel').innerText = f.name;
+    $('lxCover').src = img('echoes');
+    lxDurationText = '—';
+    setLxMode('upload');
+    const a = document.createElement('audio');
+    const u = URL.createObjectURL(f);
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => { if (isFinite(a.duration)) { lxDurationText = fmtTime(a.duration); if (lxFile === f) $('lxDuration').innerText = 'Duration: ' + lxDurationText; } URL.revokeObjectURL(u); };
+    a.onerror = () => URL.revokeObjectURL(u);
+    a.src = u;
+}
+
+const LX_SYSTEM = `You are a vocal coach and lyric transcriber. Listen to the audio of the supplied video or audio, transcribe the sung lyrics line by line with timestamps (keep the original language and script), and assess the singer's pitch for every line.
+Reply with ONLY a JSON object:
+{
+ "title": "song title if known else a short descriptive title",
+ "artist": "artist or channel if known else empty",
+ "duration": "mm:ss",
+ "key": "detected key e.g. G Major",
+ "bpm": integer,
+ "vocalRange": "e.g. G3 - E5",
+ "summary": "2-3 sentences on overall pitch accuracy and the main things to improve",
+ "lines": [
+  {"time":"00:12.40","section":"Verse 1 (only on the first line of a section, else empty)","text":"lyric line",
+   "notes":[{"note":"C4","ok":true},{"note":"E4","ok":false,"target":"F4"}],
+   "tip":"only when a note is off: how to correct it, e.g. 'raise to F4, keep the vowel open'"}
+ ]
+}
+Rules: list the 1-4 main sung notes per line in scientific pitch notation. ok=true means in tune with the song's intended melody and key; ok=false means flat, sharp or wrong, and then "target" is the note that should have been sung. Only mark notes wrong where you genuinely hear a deviation (professional studio vocals are usually accurate). At most 80 lines. If there are no vocals, return empty lines and say so in summary.`;
+
+function fmtStamp(t) {
+    if (typeof t === 'number') { const m = Math.floor(t / 60), s = t - m * 60; return String(m).padStart(2, '0') + ':' + s.toFixed(2).padStart(5, '0'); }
+    const m = /^(\d{1,2}):(\d{2})(?:\.(\d{1,2}))?$/.exec(String(t || '').trim());
+    if (!m) return '00:00.00';
+    return m[1].padStart(2, '0') + ':' + m[2] + '.' + (m[3] || '0').padEnd(2, '0');
+}
+function normalizeLyrics(raw) {
+    const r = raw && typeof raw === 'object' ? raw : {};
+    const lines = (Array.isArray(r.lines) ? r.lines : []).slice(0, 120).filter(l => l && String(l.text || '').trim()).map(l => ({
+        time: fmtStamp(l.time), section: String(l.section || '').slice(0, 40), text: String(l.text).slice(0, 300),
+        notes: (Array.isArray(l.notes) ? l.notes : []).slice(0, 6).map(n => {
+            if (typeof n === 'string') return { note: n.slice(0, 4), ok: true, target: '' };
+            const status = String((n && n.status) || '').toLowerCase();
+            const ok = n && n.ok !== false && !/off|wrong|flat|sharp|incorrect/.test(status);
+            return { note: String((n && n.note) || '?').slice(0, 4), ok, target: ok ? '' : String((n && n.target) || '').slice(0, 4) };
+        }),
+        tip: String(l.tip || l.correction || '').slice(0, 240)
+    }));
+    return {
+        title: String(r.title || 'Untitled').slice(0, 80), artist: String(r.artist || '').slice(0, 60), duration: String(r.duration || '').slice(0, 8),
+        key: String(r.key || '—').slice(0, 20), bpm: r.bpm ? String(Math.round(Number(r.bpm)) || r.bpm).slice(0, 5) : '—',
+        range: String(r.vocalRange || r.range || '—').slice(0, 20), summary: String(r.summary || '').slice(0, 600), lines
+    };
+}
+function lyricStats(r) {
+    let total = 0, ok = 0;
+    r.lines.forEach(l => l.notes.forEach(n => { total++; if (n.ok) ok++; }));
+    return { total, ok, pct: total ? Math.round(ok / total * 100) : null };
+}
+
+async function extractLyrics() {
+    if (lxBusy) return;
+    if (!getKey()) { needKey(); return; }
+    const parts = [{ text: 'Transcribe the lyrics and analyse the pitch of this ' + (lxMode === 'youtube' ? 'YouTube video.' : 'recording.') }];
+    let sourceLabel, sourceUrl = '';
+    if (lxMode === 'youtube') {
+        const url = normYt($('lxUrl').value);
+        if (!url) { showToast('Paste a valid YouTube link first'); return; }
+        parts.push({ fileData: { fileUri: url } });
+        sourceLabel = 'YouTube Video'; sourceUrl = url;
+    } else {
+        if (!lxFile) { showToast('Choose an audio or video file first'); return; }
+        try { parts.push({ inlineData: { mimeType: lxFile.type || (/\.mp3$/i.test(lxFile.name) ? 'audio/mpeg' : 'audio/wav'), data: await readB64(lxFile) } }); }
+        catch (e) { showToast(e.message); return; }
+        sourceLabel = lxFile.name;
+    }
+    lxBusy = true;
+    const btn = $('lxExtractBtn');
+    btn.disabled = true; btn.classList.add('opacity-70', 'cursor-wait');
+    btn.innerText = 'Gemini is listening…';
+    $('lyricFeed').innerHTML = '<div class="text-slate-400 text-[11px]"><i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Extracting lyrics and checking pitch — this can take up to a minute for long videos.</div>';
+    try {
+        const r = normalizeLyrics(parseJsonLoose(await callGemini(parts, LX_SYSTEM)));
+        lxResult = r;
+        renderLyrics(r);
+        if (r.title && r.title !== 'Untitled') $('lxTitle').innerText = r.title;
+        if (r.artist) $('lxArtist').innerText = r.artist;
+        const dur = r.duration || (lxMode === 'upload' ? lxDurationText : '—');
+        $('lxDuration').innerText = 'Duration: ' + dur;
+        if (r.lines.length) {
+        hist.unshift({ id: 'l' + Date.now().toString(36), type: 'lyric', title: r.title, subtitle: 'Extracted lyrics' + (r.artist ? ' · ' + r.artist : ''), source: sourceLabel, sourceUrl, created: new Date().toISOString(), duration: dur === '—' ? '' : dur, cover: $('lxCover').src, result: r });
+        store.set(K.history, hist);
+        }
+        showToast(r.lines.length ? 'Lyrics extracted — saved to History' : 'No sung lyrics were found');
+    } catch (e) {
+        $('lyricFeed').innerHTML = LX_FEED_EMPTY;
+        if (e.message === 'NO_KEY') needKey(); else showToast(e.message || 'Extraction failed');
+    } finally {
+        lxBusy = false;
+        btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-wait');
+        btn.innerText = 'Extract Lyrics';
+    }
+}
+
+function renderLyrics(r) {
+    const feed = $('lyricFeed');
+    if (!r.lines.length) feed.innerHTML = '<div class="text-slate-400 text-[11px]">No sung lyrics were detected in this source.</div>';
+    else {
+        feed.innerHTML = r.lines.map((l, i) => {
+            const sec = l.section ? `<div class="text-brand-600 font-bold text-[11px]${i ? ' mt-2' : ''}">[${esc(l.section)}]</div>` : '';
+            const badges = l.notes.map(n => n.ok
+                ? `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded" title="In tune">${esc(n.note)}</span>`
+                : `<span class="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded" title="Off pitch${n.target ? ' – should be ' + esc(n.target) : ''}">${esc(n.note)}${n.target ? '→' + esc(n.target) : ''}</span>`).join('');
+            const tip = l.tip && l.notes.some(n => !n.ok) ? `<p class="text-[10px] text-red-500 font-medium">↳ ${esc(l.tip)}</p>` : '';
+            return `${sec}<div class="flex items-start gap-3"><span class="text-slate-400 text-[10px] w-10 shrink-0 pt-0.5">${esc(l.time)}</span><div class="flex flex-col gap-1"><div class="flex items-center gap-2 flex-wrap"><span class="text-slate-800">${esc(l.text)}</span>${badges}</div>${tip}</div></div>`;
+        }).join('');
+    }
+    $('lxKeyV').innerText = r.key; $('lxBpmV').innerText = r.bpm; $('lxRangeV').innerText = r.range; $('lxLinesV').innerText = r.lines.length || '—';
+    const st = lyricStats(r);
+    const bad = r.lines.filter(l => l.notes.some(n => !n.ok));
+    $('lxInsights').classList.remove('hidden');
+    $('lxAccuracy').innerText = st.pct === null ? 'No notes' : st.pct + '% on pitch';
+    $('lxSummary').innerText = r.summary || '';
+    $('lxCorrections').innerHTML = bad.length ? bad.map(l => {
+        const fixes = l.notes.filter(n => !n.ok).map(n => `${esc(n.note)}${n.target ? ' → ' + esc(n.target) : ''}`).join(', ');
+        return `<div class="bg-red-50/60 border border-red-100 rounded-2xl p-3"><p class="text-[10px] font-bold text-red-500">${esc(l.time)} · ${fixes}</p><p class="text-[11px] font-semibold text-slate-700 mt-0.5">${esc(l.text)}</p>${l.tip ? `<p class="text-[10px] text-slate-500 mt-1">${esc(l.tip)}</p>` : ''}</div>`;
+    }).join('') : '<p class="text-[11px] text-emerald-600 font-semibold">No pitch problems detected 🎉</p>';
+}
+
+/* ---------- PDF export ---------- */
+function downloadLyricsPDF() {
+    if (!lxResult || !lxResult.lines.length) { showToast('Extract lyrics first, then download the PDF'); return; }
+    exportLyricsPdf(lxResult);
+}
+function exportLyricsPdf(r) {
+    if (!r || !r.lines) { showToast('Nothing to export'); return; }
+    const all = r.title + r.artist + r.summary + r.lines.map(l => l.text + l.section + l.tip).join('');
+    if (/[^\u0000-\u00FF\u2018-\u201D\u2026]/.test(all) || !(window.jspdf && window.jspdf.jsPDF)) { printLyricsReport(r); return; }
+    const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 48;
+    let y = M;
+    const write = (txt, size, style, color, gap, indent = 0) => {
+        doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(color[0], color[1], color[2]);
+        doc.splitTextToSize(String(txt), W - 2 * M - indent).forEach(line => {
+            if (y + size * 1.4 > H - M) { doc.addPage(); y = M; }
+            doc.text(line, M + indent, y); y += size * 1.4;
+        });
+        y += gap || 0;
+    };
+    const st = lyricStats(r);
+    write('SoundCheck - Lyrics & Pitch Report', 10, 'bold', [108, 92, 231], 6);
+    write(r.title, 20, 'bold', [15, 23, 42], 0);
+    if (r.artist) write(r.artist, 12, 'normal', [100, 116, 139], 4);
+    write(`Key: ${r.key}    BPM: ${r.bpm}    Vocal range: ${r.range}    Lines: ${r.lines.length}` + (st.pct !== null ? `    Pitch accuracy: ${st.pct}%` : ''), 10, 'normal', [71, 85, 105], 8);
+    if (r.summary) { write('Summary', 12, 'bold', [15, 23, 42], 0); write(r.summary, 10, 'normal', [51, 65, 85], 10); }
+    write('Lyrics', 12, 'bold', [15, 23, 42], 2);
+    r.lines.forEach(l => {
+        if (l.section) { y += 4; write('[' + l.section + ']', 10, 'bold', [108, 92, 231], 0); }
+        const notes = l.notes.map(n => n.ok ? n.note : `${n.note}${n.target ? '->' + n.target : ''} (off)`).join('  ');
+        write(`${l.time}   ${l.text}`, 10, 'normal', [30, 41, 59], 0);
+        if (notes) write('Notes: ' + notes, 8, 'normal', [100, 116, 139], 0, 52);
+        if (l.tip && l.notes.some(n => !n.ok)) write('Fix: ' + l.tip, 8, 'italic', [220, 38, 38], 0, 52);
+        y += 3;
+    });
+    const bad = r.lines.filter(l => l.notes.some(n => !n.ok));
+    if (bad.length) {
+        y += 8; write('Pitch corrections', 12, 'bold', [15, 23, 42], 2);
+        bad.forEach(l => {
+            write(`${l.time}  "${l.text}"`, 10, 'bold', [30, 41, 59], 0);
+            write(l.notes.filter(n => !n.ok).map(n => `Sung ${n.note}${n.target ? ', should be ' + n.target : ''}`).join('; ') + (l.tip ? ' - ' + l.tip : ''), 9, 'normal', [71, 85, 105], 6, 12);
+        });
+    }
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) { doc.setPage(i); doc.setFontSize(8); doc.setTextColor(148, 163, 184); doc.text(`SoundCheck - page ${i} of ${pages}`, W / 2, H - 24, { align: 'center' }); }
+    doc.save((r.title.replace(/[^\w\- ]+/g, '').trim() || 'lyrics') + ' - lyrics.pdf');
+    showToast('PDF downloaded');
+}
+/* non-Latin lyrics (e.g. Hindi): let the browser render the fonts and save as PDF */
+function printLyricsReport(r) {
+    const st = lyricStats(r);
+    const rows = r.lines.map(l => `${l.section ? `<h3>[${esc(l.section)}]</h3>` : ''}<p><span class="t">${esc(l.time)}</span> ${esc(l.text)} ${l.notes.map(n => `<b class="${n.ok ? 'ok' : 'bad'}">${esc(n.note)}${!n.ok && n.target ? '→' + esc(n.target) : ''}</b>`).join(' ')}${l.tip && l.notes.some(n => !n.ok) ? `<br><i class="fix">↳ ${esc(l.tip)}</i>` : ''}</p>`).join('');
+    const w = window.open('', '_blank');
+    if (!w) { showToast('Allow pop-ups to save the PDF'); return; }
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(r.title)} - lyrics</title><style>body{font-family:system-ui,'Noto Sans','Noto Sans Devanagari',sans-serif;max-width:720px;margin:32px auto;color:#0f172a;font-size:13px;line-height:1.6}h1{margin:0}h3{color:#6c5ce7;margin:16px 0 4px;font-size:12px}.t{color:#94a3b8;font-size:10px;margin-right:6px}.ok{color:#047857;background:#d1fae5;padding:0 4px;border-radius:4px;font-size:10px}.bad{color:#dc2626;background:#fee2e2;padding:0 4px;border-radius:4px;font-size:10px}.fix{color:#dc2626;font-size:11px}.m{color:#475569}</style></head><body><p style="color:#6c5ce7;font-weight:700;font-size:11px">SoundCheck – Lyrics &amp; Pitch Report</p><h1>${esc(r.title)}</h1><p class="m">${esc(r.artist)}</p><p class="m">Key: ${esc(r.key)} · BPM: ${esc(r.bpm)} · Vocal range: ${esc(r.range)} · Lines: ${r.lines.length}${st.pct !== null ? ' · Pitch accuracy: ' + st.pct + '%' : ''}</p><p>${esc(r.summary)}</p><hr>${rows}<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`);
+    w.document.close();
+    showToast('Choose “Save as PDF” in the print dialog');
+}
+
+/* ==========================================================
+   SETTINGS
+   ========================================================== */
+let profile = Object.assign({ username: 'Arjun Sharma', email: 'arjun.sharma@example.com', phone: '' }, store.get(K.profile, {}));
+const ST_ON = 'w-full text-left px-3.5 py-2.5 rounded-2xl bg-brand-100/70 text-brand-600';
+const ST_OFF = 'w-full text-left px-3.5 py-2.5 rounded-2xl text-slate-600 hover:bg-slate-50';
+function selectSettingsTab(tab) {
+    ['profile', 'prefs', 'api'].forEach(k => {
+        $('set-tab-' + k).className = k === tab ? ST_ON : ST_OFF;
+        $('set-panel-' + k).classList.toggle('hidden', k !== tab);
+    });
+}
+function loadSettings() {
+    $('setName').value = profile.username; $('setEmail').value = profile.email; $('setPhone').value = profile.phone || '';
+    $('sbName').innerText = profile.username; $('sbEmail').innerText = profile.email;
+    $('setKey').value = getKey();
+    $('prefAutoplay').checked = !!prefs.autoplay;
+    $('prefSeconds').value = String(prefs.seconds || 45);
+}
+function saveProfile() {
+    const username = $('setName').value.trim(), email = $('setEmail').value.trim(), phone = $('setPhone').value.trim();
+    if (!username) { showToast('Username cannot be empty'); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Enter a valid email address'); return; }
+    if (phone && !/^\+?[\d\s\-()]{7,18}$/.test(phone)) { showToast('Enter a valid phone number'); return; }
+    profile = { username, email, phone };
+    store.set(K.profile, profile);
+    loadSettings();
+    showToast('Settings saved successfully!');
+}
+function savePrefs() {
+    prefs.autoplay = $('prefAutoplay').checked;
+    prefs.seconds = parseInt($('prefSeconds').value, 10) || 45;
+    store.set(K.prefs, prefs);
+    showToast('Preferences saved');
+}
+function saveApiKey() {
+    const k = $('setKey').value.trim();
+    if (!k) { store.del(K.key); showToast('API key removed'); return; }
+    if (/\s/.test(k) || k.length < 20) { showToast('That does not look like a valid Gemini API key'); return; }
+    store.set(K.key, k);
+    showToast('Gemini API key saved');
+}
+function toggleKeyVisibility() {
+    const i = $('setKey'), show = i.type === 'password';
+    i.type = show ? 'text' : 'password';
+    $('keyEye').className = 'fa-solid ' + (show ? 'fa-eye-slash' : 'fa-eye');
+}
+async function testApiKey() {
+    const k = $('setKey').value.trim();
+    if (!k) { showToast('Paste your API key first'); return; }
+    showToast('Testing key…');
+    try {
+        const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1&key=' + encodeURIComponent(k));
+        if (r.ok) showToast('API key works ✓');
+        else { const d = await r.json().catch(() => ({})); showToast(gemError(r.status, d.error && d.error.message)); }
+    } catch (e) { showToast('Network error – could not reach Gemini'); }
+}
+function signOut() {
+    if (!confirm('Sign out? This clears your profile, API key, history and playlists from this browser.')) return;
+    audio.pause();
+    Object.values(K).forEach(store.del);
+    store.del('sc_session');
+    location.href = 'soundcheck_login.html';
+}
+
+/* ==========================================================
+   INIT
+   ========================================================== */
+function init() {
+    setVolume(prefs.volume ?? 0.75);
+    renderTracks();
+    renderPlaylists();
+    updatePlayerUI();
+    updateHours();
+    renderHistory();
+    loadSettings();
+    setGmMode('text');
+    setLxMode('youtube');
+    $('lyricFeed').innerHTML = LX_FEED_EMPTY;
+    const h = location.hash.slice(1);
+    if (PAGES.includes(h)) navigateTo(h);
+    window.addEventListener('hashchange', () => { const x = location.hash.slice(1); if (PAGES.includes(x)) navigateTo(x); });
+}
+init();
+
+    </script>
+</body>
+</html>
